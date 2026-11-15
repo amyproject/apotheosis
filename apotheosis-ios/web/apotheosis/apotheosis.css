@@ -1,0 +1,159 @@
+/* Apotheosis design layer for the band39-live care app (care/web, unchanged).
+ * Only design and UI: colours, type, shapes, spacing, and which part shows under each native tab.
+ * Look follows the CareLink elderly-care reference: neutral grey ground, white rounded cards,
+ * black for "selected" and primary actions, soft mint hero cards, small status pills, no 3D button edges.
+ * Everything is scoped to html.apo (set by the iOS app, or by apotheosis-preview.html in a browser).
+ * html[data-apo-view] = margaret | lisa | band picks the native tab's content.
+ */
+html.apo {
+  --g0: #ECECEC; --g1: #F5F5F5; --g2: #E6E6E6; --ink: #141414; --ink2: #464646; --muted: #6B6B6B; --line: #E8E8E8;
+  --card: #FFFFFF; --violet: #141414; --violet-d: #000000; --green: #1E8F4E; --green-d: #17703D;
+  --red: #C2283B; --red-d: #9E1F30; --amber: #E08A1E; --peach-l: #FFEFE3;
+  --ok-bg: #E7F5EC; --wait-bg: #FFF2DF; --bad-bg: #FDE9EB;
+  --mint: radial-gradient(120% 140% at 0% 0%, #F3F7D9 0%, rgba(243,247,217,0) 45%), radial-gradient(120% 120% at 100% 100%, #CFEBD9 0%, rgba(207,235,217,0) 55%), #FAFBF9;
+  --shadow: 0 1px 2px rgba(0,0,0,.04);
+  --r: 28px;
+  background: var(--g0);
+}
+html.apo body { background: var(--g0); color: var(--ink); font: 15px/1.45 -apple-system, "SF Pro Text", system-ui, sans-serif; }
+html.apo .muted, html.apo .fine, html.apo .empty { color: var(--muted); }
+html.apo .app { padding: calc(env(safe-area-inset-top) + 8px) 14px calc(env(safe-area-inset-bottom) + 18px); }
+
+/* ---- which part shows under each native tab ------------------------------------------------------- */
+html.apo .tabs { display: none !important; }
+html.apo .top { display: none; }
+html.apo .grid { grid-template-columns: 1fr; gap: 14px; }
+html.apo[data-apo-view="margaret"] .col.carer, html.apo[data-apo-view="lisa"] .col.margaret { display: none !important; }
+html.apo[data-apo-view="margaret"] .col.margaret, html.apo[data-apo-view="lisa"] .col.carer { display: block !important; }
+/* Band tab: the band connection card and "Try it without a band" (both from the original page) */
+html.apo[data-apo-view="band"] .top { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 0 0 14px; }
+html.apo[data-apo-view="band"] .col.margaret { display: none !important; }
+html.apo[data-apo-view="band"] .col.carer { display: block !important; }
+html.apo[data-apo-view="band"] .carer .l-card > :not(#demo) { display: none !important; }
+html.apo[data-apo-view="band"] .grid > :not(.col) { display: none !important; }
+
+/* ---- shared controls --------------------------------------------------------------------------------- */
+html.apo .card { background: #fff; border-radius: 28px; box-shadow: none; }
+html.apo .pill { box-shadow: none; background: var(--g1); color: var(--ink); font-weight: 600; border-radius: 999px; padding: 10px 18px; }
+html.apo .pill:active { transform: scale(.97); box-shadow: none; }
+html.apo .pill.dark, html.apo .pill.violet { background: #111; color: #fff; box-shadow: none; }
+html.apo .pill.green { background: var(--green); box-shadow: none; } html.apo .pill.red { background: var(--red); box-shadow: none; }
+html.apo .pill.ghost { background: #fff; border: 1px solid var(--line); }
+html.apo input, html.apo select { font-family: inherit; }
+html.apo .cg-send input, html.apo .ask-type input, html.apo .lt-srow input, html.apo .lt-srow select { border: 0; background: var(--g1); border-radius: 999px; }
+html.apo .cg-send input:focus-visible, html.apo .ask-type input:focus-visible, html.apo .lt-srow input:focus-visible, html.apo .lt-srow select:focus-visible { outline: none; box-shadow: 0 0 0 2px #111; }
+
+/* ---- band card (Band tab) ------------------------------------------------------------------------------ */
+html.apo .brand { background: var(--mint); border-radius: 30px; padding: 16px; }
+html.apo .sprout-dot { border-radius: 50%; box-shadow: none; }
+html.apo .brand h1 { font-size: 20px; font-weight: 700; } html.apo .brand p { color: var(--ink2); font-size: 14px; }
+html.apo .conn { padding: 16px; }
+html.apo .lv-dot { background: #C9C9C9; box-shadow: 0 0 0 4px var(--g1); }
+html.apo .live[data-conn="ble"] .lv-dot { background: var(--green); box-shadow: 0 0 0 4px var(--ok-bg); }
+html.apo .live[data-conn="sim"] .lv-dot, html.apo .live[data-conn="local"] .lv-dot { background: #111; box-shadow: 0 0 0 4px var(--g2); }
+html.apo .lv-state[data-level="ok"] { color: var(--green); } html.apo .lv-state[data-level="err"] { color: var(--red); }
+html.apo .demo { background: #fff !important; border-radius: 30px; padding: 16px; }
+html.apo .demo summary { font-size: 17px; font-weight: 700; }
+html.apo .demo-row { gap: 8px; }
+html.apo .demo-row > span { width: 100%; margin-top: 4px; color: var(--muted); font-weight: 700; }
+html.apo .demo-row button, html.apo .cg-quick button { background: var(--g1); box-shadow: none; font-weight: 600; font-size: 13.5px; padding: 9px 14px; }
+html.apo .demo-row button.on { background: #111; color: #fff; }
+
+/* ---- Margaret ---------------------------------------------------------------------------------------- */
+html.apo .m-card { background: #fff; border-radius: 30px; padding: 18px; gap: 14px; box-shadow: none; }
+html.apo .m-head { align-items: center; }
+html.apo .m-greet { font-size: 25px; font-weight: 700; letter-spacing: -.01em; }
+html.apo .m-date { color: var(--muted); font-size: 16px; }
+html.apo .m-time { font-size: 30px; font-weight: 700; background: var(--g1); border-radius: 999px; padding: 10px 16px; }
+html.apo .buddy { background: var(--mint); border-radius: 26px; padding: 12px; }
+html.apo .pip { width: 80px; height: 80px; background: #fff; border-radius: 50%; padding: 6px; }
+html.apo .bubble { box-shadow: none; border-radius: 20px; font-size: 18px; }
+html.apo .band-line { background: var(--g1); border-radius: 999px; padding: 10px 16px; }
+html.apo .band-line p { color: var(--ink2); font-size: 16px; }
+html.apo .gm-dot { width: 10px; height: 10px; } html.apo .gm-dot[data-on="1"] { background: var(--green); box-shadow: 0 0 0 4px var(--ok-bg); }
+html.apo .gm-prompt { border: 0; background: var(--g1); border-radius: 26px; padding: 18px; min-height: 0; }
+html.apo .gm-prompt:empty { display: none; }
+html.apo .gm-prompt.kind-fall, html.apo .gm-prompt.kind-help, html.apo .gm-prompt.kind-scam, html.apo .gm-prompt.kind-seizure { background: var(--bad-bg); }
+html.apo .gm-prompt.kind-checkin, html.apo .gm-prompt.kind-reminder, html.apo .gm-prompt.kind-remember, html.apo .gm-prompt.kind-night { background: var(--wait-bg); }
+html.apo .gm-prompt.kind-message, html.apo .gm-prompt.kind-notworn, html.apo .gm-prompt.kind-tip { background: var(--g1); }
+html.apo .gm-prompt h4 { font-size: 24px; font-weight: 700; } html.apo .gm-prompt p { font-size: 18px; color: var(--ink2); }
+html.apo .gm-prompt blockquote { border: 0; background: #fff; }
+html.apo .gm-btn { border-radius: 999px; box-shadow: none; font-weight: 700; }
+html.apo .gm-btn.go { background: #111; } html.apo .gm-btn.sos { background: var(--red); } html.apo .gm-btn.soft { background: #fff; color: var(--ink); }
+html.apo .gm-today li { color: var(--ink2); }
+html.apo .m-actions { gap: 10px; }
+html.apo .big { border-radius: 999px; box-shadow: none; font-weight: 700; font-size: 19px; min-height: 62px; }
+html.apo .big:active { transform: scale(.98); }
+html.apo .big.talk { background: #111; box-shadow: none; } html.apo .big.talk.on { background: var(--green); box-shadow: none; }
+html.apo .big.read { background: var(--g1); box-shadow: none; }
+html.apo .m-note { color: var(--muted); }
+html.apo .gm-replies { color: var(--muted); }
+html.apo .gm-replies button { background: var(--g1); box-shadow: none; font-weight: 600; }
+html.apo .gm-help { border-radius: 999px; box-shadow: none; font-weight: 700; background: var(--red); }
+html.apo .ask-card { background: var(--g1); box-shadow: none; border-radius: 26px; }
+html.apo .ask-btn { background: #111; box-shadow: none; }
+html.apo .ask-card.listening .ask-btn { background: var(--green); box-shadow: none; }
+html.apo .ask-q { color: var(--muted); } html.apo .ask-a { color: var(--ink); font-weight: 600; }
+html.apo .ask-type input { background: #fff; border: 0; border-radius: 999px; }
+html.apo .ask-go { background: #111; color: #fff; box-shadow: none; border-radius: 999px; }
+
+/* ---- Lisa: each section becomes its own white card on the grey ground ------------------------------ */
+html.apo .l-card { background: transparent; box-shadow: none; padding: 0; border-radius: 0; gap: 14px; }
+html.apo .carer .l-card > .block, html.apo .carer .l-card > section, html.apo .carer .l-card > div:not(.cg-head) { background: #fff; border-radius: 30px; padding: 16px; }
+html.apo .carer .l-card > .block .block { background: transparent; padding: 0; border-radius: 0; }
+html.apo .cg-head { background: var(--mint); border-radius: 30px; padding: 16px; }
+html.apo .cg-av { width: 56px; height: 56px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 3px #FFE3CC; }
+html.apo .cg-who b { font-size: 20px; font-weight: 700; } html.apo .cg-who small { color: var(--muted); }
+html.apo .cg-status { background: #fff; color: var(--green); font-weight: 700; font-size: 12px; padding: 5px 11px; }
+html.apo .cg-status[data-level="warn"] { color: var(--amber); } html.apo .cg-status[data-level="urgent"] { background: var(--red); color: #fff; }
+html.apo .h { font-size: 17px; font-weight: 700; }
+html.apo .h .muted { font-size: 13px; font-weight: 500; }
+html.apo .sig { background: var(--g1); border-radius: 22px; }
+html.apo .sig.ok { background: var(--ok-bg); } html.apo .sig.watch { background: var(--wait-bg); } html.apo .sig.alert { background: var(--bad-bg); }
+html.apo .meter i { background: #111; }
+html.apo .al { border: 0; background: var(--g1); border-radius: 22px; }
+html.apo .al-urgent { background: var(--bad-bg); } html.apo .al-warn { background: var(--wait-bg); } html.apo .al-good { background: var(--ok-bg); } html.apo .al-info { background: var(--g1); }
+html.apo .al button { background: #fff; box-shadow: none; font-weight: 600; }
+html.apo .ins-g { background: var(--g1); border-radius: 22px; } html.apo .ins-g.alert { background: var(--bad-bg); } html.apo .ins-g.watch { background: var(--wait-bg); }
+html.apo .lvl { background: var(--ok-bg); color: var(--green); } html.apo .lvl.medium { background: var(--wait-bg); color: #8A5300; } html.apo .lvl.high { background: var(--red); color: #fff; }
+html.apo .prod { background: var(--g1); border-radius: 22px; }
+html.apo .prod .tag { background: var(--ok-bg); color: var(--green); } html.apo .prod .tag.lmn { background: var(--g2); color: var(--ink2); }
+html.apo .prod input, html.apo .dg-prod input { accent-color: #111; }
+html.apo .doc-sum { background: var(--g1); font-family: inherit; color: var(--ink2); border-radius: 20px; }
+html.apo .msg.me span { background: #111; } html.apo .msg.her span { background: var(--g1); color: var(--ink); }
+html.apo .tl { border-bottom-color: var(--line); } html.apo .tl-safety { color: var(--red); } html.apo .tl-good { color: var(--green); }
+
+/* money.js — Mom's safe card */
+html.apo .paycard { background: linear-gradient(135deg, #161616, #3A3A3A); border-radius: 24px; }
+html.apo .paycard.frozen { background: linear-gradient(135deg, #7E838C, #9DA2AA); }
+html.apo .paycard.once { background: linear-gradient(135deg, #17703D, #2E9B5B); }
+html.apo .paycard .st { background: rgba(255,255,255,.18); }
+html.apo .money-meter { background: var(--g2); } html.apo .money-meter i { background: #111; }
+html.apo .money-chips span { background: var(--g1); border: 0; }
+html.apo .money-alert { background: var(--bad-bg); } html.apo .money-ok { background: var(--ok-bg); }
+html.apo .money-tx .bd.y { background: var(--ok-bg); color: var(--green); } html.apo .money-tx .bd.n { background: var(--bad-bg); color: var(--red); }
+
+/* scores.js — Physical and Mental health charts */
+html.apo .seg { background: var(--g1); } html.apo .seg button[aria-pressed="true"] { background: #111; color: #fff; box-shadow: none; }
+html.apo .score { background: var(--g1); border-radius: 22px; }
+html.apo .score-num { font-weight: 700; }
+html.apo .score-plot .grid { stroke: #E0E0E0; } html.apo .score-plot .axis { fill: var(--muted); }
+
+/* live.js — the live transcript */
+html.apo .live-tx { background: #fff; }
+html.apo .lt-list { border: 0; background: var(--g1); border-radius: 20px; }
+html.apo .lt-row + .lt-row { border-top-color: #E9E9E9; }
+html.apo .lt-chip[data-voice="main"], html.apo .lt-pill[data-voice="main"] { background: #111; color: #fff; }
+html.apo .lt-hit { background: var(--g1); }
+html.apo .lt-mom, html.apo .lt-merge { border-color: var(--line); }
+html.apo .lt-notice { background: var(--wait-bg); }
+html.apo .lt-top { border: 0; background: #fff; }
+html.apo .lt-state[data-level="on"] .lt-dot { background: var(--green); }
+
+/* digest.js — tonight's summary */
+html.apo .digest { background: #fff; }
+html.apo .dg-sec { border: 0; background: var(--g1); border-radius: 22px; }
+html.apo .dg-elig { background: var(--ok-bg); color: var(--green); }
+html.apo .dg-pre { background: #fff; }
+
+html.apo .foot { margin-top: 16px; }

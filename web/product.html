@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Band 39 · Margaret, Lisa and a day in 30 seconds</title>
+<link rel="stylesheet" href="fonts/fonts.css" />
+<script src="js/icons.js"></script>
+<style>
+  /* Band 39 product page: the elderly portal, the caregiver portal and the 30-second simulator, live and linked.
+     Three copies of the app share one household code; the simulator drives the pretend band (it is the hub)
+     and the two portals follow it every ~1.5 s through /api/state, exactly like two real phones would. */
+  :root { --paper: #F5EEE5; --card: #FFFDFA; --ink: #2E241E; --ink2: #5C4C42; --muted: #745F51; --line: #E9DED1; --terra: #B0532F; --terra-d: #8E3F20; --bezel: #2A221D; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: radial-gradient(1200px 520px at 85% -10%, #FBE3D2 0%, transparent 60%), var(--paper); color: var(--ink); font: 15px/1.45 Figtree, ui-sans-serif, system-ui, sans-serif; min-height: 100vh; }
+  header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; max-width: 1560px; margin: 0 auto; padding: 18px 24px 10px; }
+  h1 { margin: 0; font: 600 30px/1 Fraunces, Georgia, serif; letter-spacing: -.02em; }
+  header p { margin: 0; color: var(--ink2); }
+  .tabs { margin-left: auto; display: none; gap: 4px; padding: 3px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+  .tabs button { height: 34px; padding: 0 14px; border: 0; border-radius: 999px; background: none; color: var(--ink2); font: 600 14px Figtree, system-ui, sans-serif; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+  main { display: grid; grid-template-columns: 392px 392px minmax(520px, 1fr); gap: 20px; max-width: 1560px; margin: 0 auto; padding: 8px 24px 32px; align-items: start; }
+  .panel { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .panel h2 { display: flex; align-items: center; gap: 9px; margin: 0; font: 700 13px/1 Figtree, system-ui, sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .panel h2 span { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: #F8E3D8; color: var(--terra-d); font-size: 13px; letter-spacing: 0; }
+  .panel h2 a { margin-left: auto; color: var(--terra-d); font-size: 12px; letter-spacing: 0; text-transform: none; text-decoration: none; font-weight: 700; }
+  .panel h2 a:hover { text-decoration: underline; }
+  .phone { position: relative; width: 392px; height: 812px; border: 10px solid var(--bezel); border-radius: 48px; background: var(--bezel); box-shadow: 0 24px 50px -24px rgba(60,35,20,.55); overflow: hidden; }
+  .phone::before { content: ''; position: absolute; top: 8px; left: 50%; width: 96px; height: 26px; transform: translateX(-50%); background: var(--bezel); border-radius: 999px; z-index: 2; pointer-events: none; }
+  .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 38px; background: #EAF2FF; display: block; }
+  .screen { height: 812px; border: 1px solid var(--line); border-radius: 26px; overflow: hidden; background: var(--card); box-shadow: 0 24px 50px -28px rgba(60,35,20,.45); }
+  .screen iframe { width: 100%; height: 100%; border: 0; display: block; }
+  footer { max-width: 1560px; margin: 0 auto; padding: 0 24px 28px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 1360px) { main { grid-template-columns: 392px 392px; } .panel.sim { grid-column: 1 / -1; order: -1; } .screen { height: 760px; } }
+  @media (max-width: 860px) {
+    header { padding: 14px 14px 8px; } h1 { font-size: 24px; } header p { display: none; } .tabs { display: flex; }
+    main { grid-template-columns: 1fr; padding: 6px 14px 24px; } .panel { display: none; } .panel.on { display: flex; } .panel.sim { order: 0; }
+    .phone { width: 100%; max-width: 392px; height: 760px; margin: 0 auto; } .screen { height: 78vh; min-height: 560px; }
+  }
+  /* the event, large: Margaret → Bracelet → Lisa's portal, fed by the simulator (postMessage 'b39-event') */
+  .panel.sim { grid-column: 3; grid-row: 1 / span 2; align-self: stretch; } .panel.elder { grid-column: 1; grid-row: 1; } .panel.carer { grid-column: 2; grid-row: 1; } .panel.sim .screen { flex: 1; height: auto; min-height: 812px; }
+  .flowp { grid-column: 1 / 3; grid-row: 2; background: var(--card); border: 1px solid var(--line); border-radius: 26px; padding: 18px 20px; box-shadow: 0 24px 50px -30px rgba(60,35,20,.45); }
+  .flowp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .flowp-head h2 { margin: 0; font: 600 22px Fraunces, Georgia, serif; } .flowp-head time { margin-left: auto; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tag { height: 26px; padding: 0 11px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 700; background: #EFE6DA; color: var(--ink2); }
+  .tag.mental { background: #EFEAFE; color: #6A4BD8; } .tag.financial { background: #FBEFD9; color: #8F5B12; } .tag.physical { background: #DDF3E8; color: #23704C; }
+  .lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; }
+  .lane { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 18px; background: #FBF7F1; min-height: 190px; }
+  .lane:not(:last-child)::after { content: '→'; position: absolute; right: -24px; top: 50%; transform: translateY(-50%); color: var(--terra); font-weight: 800; font-size: 20px; }
+  .lane h3 { display: flex; align-items: center; gap: 7px; margin: 0; font: 700 12px/1 Figtree, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .lane .big { font: 600 20px/1.2 Fraunces, Georgia, serif; display: flex; align-items: center; gap: 8px; }
+  .lane q { color: var(--ink2); font-style: italic; } .lane small { color: var(--ink2); font-size: 14px; }
+  .chip { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13px; font-weight: 700; color: var(--ink2); }
+  .led { width: 12px; height: 12px; border-radius: 50%; background: var(--led); box-shadow: 0 0 10px var(--led); flex: none; }
+  .note { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; } .note b { display: flex; align-items: center; gap: 7px; } .note p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink2); }
+  .appic { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; background: #23704C; color: #fff; flex: none; }
+  .where { font-size: 13px; font-weight: 700; color: var(--terra-d); }
+  .lane.lisa.urgent { background: #FBE4DC; } .lane.lisa.urgent .note { border-color: #E9B7A4; } .lane.lisa.urgent .note b { color: var(--terra-d); }
+  .route { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 6px; margin: 16px 0 0; padding: 12px 14px; border-radius: 16px; border: 1px dashed #DCCDBD; background: #FBF7F1; }
+  .route li { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; color: var(--ink2); animation: hop 2.6s ease-in-out infinite; animation-delay: calc(var(--k) * .4s); }
+  .route li:not(:last-child)::after { content: '→'; margin: 0 -4px 0 8px; color: var(--terra); font-weight: 800; }
+  .route li:last-child { background: var(--terra); border-color: var(--terra); color: #fff; }
+  @keyframes hop { 0%, 100% { box-shadow: none; } 15% { box-shadow: 0 0 0 4px rgba(176,83,47,.22); border-color: var(--terra); } }
+  .flowp .idle { color: var(--muted); margin: 0; }
+  @media (max-width: 1360px) { .panel.sim { grid-column: 1 / -1; grid-row: 1; } .panel.elder, .panel.carer { grid-row: 2; } .panel.carer { grid-column: 2; } .flowp { grid-row: 3; } .panel.sim .screen { min-height: 0; height: 760px; flex: none; } .flowp { grid-column: 1 / -1; } }
+  @media (max-width: 860px) { .panel, .flowp { grid-column: 1 !important; grid-row: auto !important; } .flowp { display: none; } .flowp.on { display: block; } .lanes { grid-template-columns: 1fr; gap: 26px; } .lane:not(:last-child)::after { right: 50%; top: auto; bottom: -24px; transform: translateX(50%) rotate(90deg); } }
+  @media (prefers-reduced-motion: reduce) { .route li { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+  /* portals from band39-live (web/live, unchanged): ONE page shown as two phones, so Grandma and Me share one live state.
+     The page's two columns are laid out to sit exactly under the two bezels (see LIVE_CSS in the script). */
+  .panel.portals { grid-column: 1 / 3; grid-row: 1; }
+  .duo-heads { display: grid; grid-template-columns: 392px 392px; gap: 20px; }
+  .duo-heads h2 { display: flex; align-items: center; gap: 9px; margin: 0; font: 700 13px/1 Figtree, system-ui, sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .duo-heads h2 span { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: #F8E3D8; color: var(--terra-d); font-size: 13px; letter-spacing: 0; }
+  .duo-heads h2 a { margin-left: auto; color: var(--terra-d); font-size: 12px; letter-spacing: 0; text-transform: none; text-decoration: none; font-weight: 700; }
+  .duo-fit { width: 804px; height: 812px; }
+  .duo { position: relative; width: 804px; height: 812px; transform: scale(var(--k, 1)); transform-origin: 0 0; }
+  .duo iframe { position: absolute; inset: 0; width: 804px; height: 812px; border: 0; background: transparent; color-scheme: light; }
+  .duo .bezel { position: absolute; top: 0; width: 392px; height: 812px; border: 10px solid var(--bezel); border-radius: 48px; pointer-events: none; box-shadow: 0 24px 50px -24px rgba(60,35,20,.55); }
+  .duo .bezel::before { content: ''; position: absolute; top: -2px; left: 50%; width: 96px; height: 26px; transform: translateX(-50%); background: var(--bezel); border-radius: 999px; }
+  .duo .bezel::after { content: ''; position: absolute; inset: -11px; border: 2px solid var(--paper); border-radius: 50px; }
+  @media (max-width: 1360px) { .panel.portals { grid-column: 1 / -1; grid-row: 2; } }
+  @media (max-width: 860px) { .duo-heads { grid-template-columns: 1fr 1fr; } .duo-fit { width: 100%; height: calc(812px * var(--k, 1)); } }
+  /* order: simulator, then me, then grandma */
+  main { grid-template-columns: minmax(600px, 1fr) 392px 392px; }
+  .panel.sim { grid-column: 1; grid-row: 1 / span 2; }
+  .panel.portals { grid-column: 2 / 4; grid-row: 1; }
+  .flowp { grid-column: 2 / 4; grid-row: 2; }
+  @media (max-width: 1360px) { main { grid-template-columns: 392px 392px; } .panel.sim { grid-column: 1 / -1; grid-row: 1; } .panel.portals { grid-column: 1 / -1; grid-row: 2; } .flowp { grid-column: 1 / -1; grid-row: 3; } }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  :focus-visible { outline: 3px solid var(--terra); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Band 39</h1>
+  <p>The simulator, then my app and Grandma’s screen from band39-live.</p>
+  <div class="tabs" role="tablist" aria-label="Screens">
+    
+        <button role="tab" data-show="sim" aria-selected="true">Simulator</button>
+    <button role="tab" data-show="portals" aria-selected="false">Me &amp; grandma</button>
+  </div>
+</header>
+<main>
+  <section class="panel portals" id="portals" aria-label="Grandma and me: portals from band39-live">
+    <div class="duo-heads">
+      <h2 id="h-me"><span>2</span>Me<a href="live/index.html" target="_blank" rel="noopener">Open</a></h2>
+      <h2 id="h-grandma"><span>3</span>Grandma</h2>
+    </div>
+    <div class="duo-fit"><div class="duo">
+      <iframe id="liveFrame" title="Grandma's screen and my app (band39-live care app, one page)" src="live/index.html" loading="eager"></iframe>
+      <i class="bezel" style="left:0" aria-hidden="true"></i><i class="bezel" style="left:412px" aria-hidden="true"></i>
+    </div></div>
+  </section>
+  <section class="panel sim on" id="sim" aria-labelledby="h-sim">
+    <h2 id="h-sim"><span>1</span>Simulator<a href="/" target="_blank" rel="noopener">Open</a></h2>
+    <div class="screen"><iframe title="Simulator: a day in 30 seconds" data-src="#/" loading="eager"></iframe></div>
+  </section>
+  <section class="flowp" id="flowp" aria-live="polite" aria-label="What happens, step by step">
+    <div class="flowp-head"><span class="tag" id="fTag">Ready</span><h2 id="fName">Press play or tap an event</h2><time id="fTime"></time></div>
+    <div class="lanes" id="fLanes"></div>
+    <ol class="route" id="fRoute" aria-label="Information flow"></ol>
+  </section>
+</main>
+<footer>Signals, not diagnoses. Past days are sample history. The card is simulated.</footer>
+<script>
+  // one household code for all three screens (the app reads ?home=), so the portals follow the simulator's band
+  (function () {
+    const ok = (c) => /^[A-Z0-9]{6}$/.test(c || '');
+    let home = (new URL(location.href).searchParams.get('home') || '').toUpperCase();
+    if (!ok(home)) home = (localStorage.getItem('b39home') || '').toUpperCase();
+    if (!ok(home)) { home = Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join(''); }
+    localStorage.setItem('b39home', home);
+    document.querySelectorAll('iframe[data-src]').forEach((f) => { f.src = `index.html?embed=1${f.dataset.phone ? '&phone=1' : '&product=1'}&home=${home}${f.dataset.src === '#/' && new URL(location.href).searchParams.get('autoplay') ? '&autoplay=1' : ''}${f.dataset.src}`; });
+    // the event, large, under the phones
+    const I = (n, z = 16) => (window.VexoIcons ? VexoIcons.svg(n, z) : '');
+    const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const lane = (cls, ic, h, body) => `<div class="lane ${cls}"><h3>${I(ic)}${h}</h3>${body}</div>`;
+    function paint(e) {
+      document.getElementById('fTag').className = 'tag ' + e.cat; document.getElementById('fTag').textContent = e.catName;
+      document.getElementById('fName').textContent = e.name; document.getElementById('fTime').textContent = e.t;
+      document.getElementById('fLanes').innerHTML =
+        lane('', 'user', 'Margaret', `<span class="big">${esc(e.does)}</span>${e.say ? `<q>${esc(e.say)}</q>` : ''}`) +
+        lane('', 'watch', 'Bracelet', `<span class="chip">${I(e.sensorIcon, 14)}${esc(e.sensor)}</span><span class="big">${e.led ? `<i class="led" style="--led:${e.led}"></i>` : ''}${esc(e.reading)}</span><small>${esc(e.bandDoes)}</small>`) +
+        lane('lisa ' + (e.lisa.level === 'urgent' ? 'urgent' : ''), 'phone', 'Lisa’s portal', `<div class="note"><b><span class="appic">${I('sprout', 12)}</span>${esc(e.lisa.title)}</b><p>${esc(e.lisa.body)}</p></div><span class="where">${esc(e.where)}</span>`);
+      document.getElementById('fRoute').innerHTML = (e.flow || []).map(([ic, l], k) => `<li style="--k:${k}">${I(ic, 15)}${esc(l)}</li>`).join('');
+    }
+    addEventListener('message', (m) => { if (m.origin === location.origin && m.data && m.data.type === 'b39-event') { paint(m.data); if (typeof syncFromSim === 'function') syncFromSim(m.data); } });
+    // phones: one screen at a time
+    const tabs = document.querySelectorAll('[data-show]');
+    tabs.forEach((b) => b.addEventListener('click', () => {
+      tabs.forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === b.dataset.show));
+      document.getElementById('flowp').classList.toggle('on', b.dataset.show === 'sim');
+    }));
+    // Grandma and Me: one band39-live page, its two columns placed under the two bezels (UI only; its files are unchanged)
+    const LIVE_CSS = `
+      html, body { background: transparent !important; }
+      body { overflow: hidden; }
+      .app { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+      .tabs, .lt-top, .foot { display: none !important; }
+      .grid { display: grid !important; grid-template-columns: 372px 372px !important; column-gap: 40px !important; padding: 10px !important; align-items: start; }
+      .app .col.margaret, .app .col.carer { display: block !important; height: 792px; overflow-y: auto; border-radius: 38px; padding: 34px 10px 14px;
+        background: linear-gradient(180deg, #DDEFFF 0%, #F2F0FF 40%, #FFF1E3 100%); scrollbar-width: none; }
+      .col::-webkit-scrollbar { display: none; }
+      .app .col.carer { order: 1; } .app .col.margaret { order: 2; }
+      .col.carer > .top { display: block; margin: 0 0 12px; } .col.carer > .top .brand { display: none; }
+      .m-card { padding: 16px; } .m-greet { font-size: 24px; } .m-time { font-size: 32px; } .pip { width: 80px; height: 80px; } .bubble { font-size: 17px; }
+      .m-actions { grid-template-columns: 1fr; } .l-card { padding: 14px; } .sig-grid { grid-template-columns: 1fr 1fr; }
+      .app .col.margaret, .app .col.carer { padding-bottom: 0; display: flex !important; flex-direction: column; }
+      .col > .m-card, .col > .l-card { flex: 1 0 auto; }
+      .col[data-pane="home"] :where([data-pane-of]:not([data-pane-of="home"],[data-pane-of="all"])) { display: none !important; }
+      .col[data-pane="ask"] :where([data-pane-of]:not([data-pane-of="ask"],[data-pane-of="all"])) { display: none !important; }
+      .col[data-pane="privacy"] :where([data-pane-of]:not([data-pane-of="privacy"],[data-pane-of="all"])) { display: none !important; }
+      .col[data-pane="physical"] :where([data-pane-of]:not([data-pane-of="physical"],[data-pane-of="all"],[data-pane-of="pm"])) { display: none !important; }
+      .col[data-pane="mental"] :where([data-pane-of]:not([data-pane-of="mental"],[data-pane-of="all"],[data-pane-of="pm"])) { display: none !important; }
+      .col[data-pane="financial"] :where([data-pane-of]:not([data-pane-of="financial"],[data-pane-of="all"])) { display: none !important; }
+      .col[data-pane="band"] :where([data-pane-of]:not([data-pane-of="band"],[data-pane-of="all"])) { display: none !important; }
+      .col[data-pane="physical"] .score[data-kind="mental"], .col[data-pane="mental"] .score[data-kind="physical"] { display: none !important; }
+      /* privacy: what Grandma keeps to herself disappears from my phone */
+      .col.carer[data-private-physical] .l-card > [data-pane-of="physical"]:not(.duo-locked), .col.carer[data-private-physical] .score[data-kind="physical"],
+      .col.carer[data-private-mental] .l-card > [data-pane-of="mental"]:not(.duo-locked), .col.carer[data-private-mental] .score[data-kind="mental"],
+      .col.carer[data-private-financial] .l-card > [data-pane-of="financial"]:not(.duo-locked) { display: none !important; }
+      .duo-locked { display: none !important; }
+      .col.carer #cgSummary { display: none !important; }
+      .col.carer[data-private-physical][data-pane="physical"] .duo-locked[data-cat="physical"], .col.carer[data-private-mental][data-pane="mental"] .duo-locked[data-cat="mental"],
+      .col.carer[data-private-financial][data-pane="financial"] .duo-locked[data-cat="financial"] { display: flex !important; }
+      .duo-locked { flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 28px 18px !important; background: #F7F5FD !important; border-radius: 22px; }
+      .duo-locked .lock { width: 52px; height: 52px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 24px; }
+      .duo-locked b { font-size: 17px; } .duo-locked p { margin: 0; font-size: 13.5px; color: #545270; }
+      .duo-note .safety { grid-column: 1 / -1; justify-self: start; font-size: 10.5px; font-weight: 800; border-radius: 999px; padding: 2px 8px; background: #2B2A3D; color: #fff; margin-top: 4px; }
+      .duo-privacy { display: flex; flex-direction: column; gap: 12px; }
+      .duo-privacy h4 { margin: 0; font-size: 26px; letter-spacing: -.02em; line-height: 1.2; }
+      .duo-privacy > p { margin: 0; font-size: 17px; color: #4A3A28; }
+      .duo-share { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; background: #fff; border-radius: 22px; padding: 14px 16px; border: 2px solid #F3E6D3; }
+      .duo-share b { font-size: 19px; } .duo-share small { grid-column: 1; font-size: 14.5px; color: #6A5A48; line-height: 1.35; }
+      .duo-share .state { grid-column: 1; font-size: 13.5px; font-weight: 800; color: #2C8A5E; } .duo-share[data-on="0"] .state { color: #B23345; }
+      .duo-share[data-on="0"] { background: #FBF9F6; }
+      .duo-switch { grid-column: 2; grid-row: 1 / span 3; width: 76px; height: 44px; border-radius: 999px; border: 0; background: #3FAE7A; position: relative; cursor: pointer; transition: background .2s; }
+      .duo-switch::after { content: ''; position: absolute; top: 4px; left: 36px; width: 36px; height: 36px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: left .2s; }
+      .duo-switch[aria-checked="false"] { background: #CFC6B8; } .duo-switch[aria-checked="false"]::after { left: 4px; }
+      .duo-switch:focus-visible { outline: 3px solid #7A5CF0; outline-offset: 2px; }
+      .duo-always { background: #F7F3FF; border-radius: 22px; padding: 14px 16px; }
+      .duo-always b { font-size: 17px; display: block; margin-bottom: 4px; } .duo-always p { margin: 0; font-size: 15px; color: #4A3A28; line-height: 1.4; }
+      .duo-sees { font-size: 14.5px; color: #4A3A28; background: #fff; border-radius: 22px; padding: 12px 16px; border: 2px dashed #EADFCF; }
+      .duo-sees ul { margin: 6px 0 0; padding-left: 20px; } .duo-sees li { margin: 3px 0; }
+      .duo-chat { display: flex; flex-direction: column; gap: 10px; background: #fff; border-radius: 26px; padding: 14px; border: 2px solid #E2D8FF; }
+      .duo-chat h4 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px; } .duo-chat h4 small { font-size: 13px; font-weight: 600; color: #6E6B87; }
+      .duo-msgs { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+      .duo-msg { max-width: 88%; padding: 10px 14px; border-radius: 20px; font-size: 15px; line-height: 1.4; white-space: pre-wrap; }
+      .duo-msg.bot { align-self: flex-start; background: #F3EFFF; color: #2B2A3D; border-bottom-left-radius: 6px; }
+      .duo-msg.me { align-self: flex-end; background: #7A5CF0; color: #fff; border-bottom-right-radius: 6px; }
+      .duo-msg.wait { opacity: .6; font-style: italic; }
+      .duo-msg small { display: block; margin-top: 4px; font-size: 11.5px; opacity: .75; }
+      .duo-chat.big .duo-msg { font-size: 19px; }
+      .duo-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .duo-chips button { border: 2px solid #E2D8FF; background: #F7F3FF; color: #5C3FD6; border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+      .duo-chat.big .duo-chips button { font-size: 16px; padding: 9px 14px; }
+      .duo-send { display: flex; gap: 8px; } .duo-send input { flex: 1; min-width: 0; font: inherit; font-size: 15px; padding: 11px 14px; border-radius: 999px; border: 2px solid #ECE7F5; background: #fff; }
+      .duo-chat.big .duo-send input { font-size: 18px; padding: 13px 16px; }
+      .duo-send button { border: 0; border-radius: 999px; padding: 0 18px; font: inherit; font-weight: 800; background: #7A5CF0; color: #fff; cursor: pointer; }
+      .duo-say { align-self: flex-start; border: 0; background: none; color: #5C3FD6; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; padding: 2px 4px; }
+      /* Grandma: simple and large */
+      .col.margaret { font-size: 17px; }
+      .col.margaret .m-card { gap: 14px; padding: 16px; }
+      .col.margaret .m-head { align-items: center; } .col.margaret .m-greet { font-size: 26px; } .col.margaret .m-date { font-size: 17px; } .col.margaret .m-time { font-size: 34px; }
+      .col.margaret .buddy { align-items: center; gap: 12px; }
+      .col.margaret .pip { width: 82px; height: 82px; }
+      .duo-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+      .duo-side .bubble { font-size: 19px; padding: 12px 14px; }
+      .duo-side .band-line { padding: 8px 12px; border-radius: 16px; } .duo-side .band-line p { font-size: 15.5px; }
+      .col.margaret .m-note, .col.margaret .gm-help, .col.margaret .ask-card, .col.margaret .gm-replies > span { display: none !important; }
+      .col.margaret .m-actions { grid-template-columns: 1fr !important; gap: 10px; } .col.margaret .big { min-height: 66px; font-size: 22px; }
+      .col.margaret .gm-replies { gap: 8px; } .col.margaret .gm-replies button { font-size: 18px; padding: 12px 16px; flex: 1 1 auto; }
+      .col.margaret .duo-tabs button { font-size: 17px; padding: 11px 4px; }
+      .duo-sos { position: sticky; bottom: 68px; z-index: 5; margin: 12px 0 2px; border: 0; border-radius: 24px; padding: 16px; width: 100%; background: #D9475A; color: #fff; font: inherit; font-size: 22px; font-weight: 800; box-shadow: 0 5px 0 #B23345, 0 12px 26px rgba(217,71,90,.35); cursor: pointer; }
+      .duo-sos.calling { background: #2B2A3D; box-shadow: 0 5px 0 #15141F; }
+      .duo-sos small { display: block; font-size: 14px; font-weight: 600; opacity: .9; }
+      .duo-fab { position: sticky; bottom: 70px; align-self: flex-end; margin: auto 4px 8px auto; z-index: 5; border: 0; border-radius: 999px; padding: 12px 18px; background: #2B2A3D; color: #fff; font: inherit; font-weight: 800; font-size: 14px; box-shadow: 0 10px 24px rgba(43,42,61,.3); cursor: pointer; }
+      .duo-sheet { position: sticky; bottom: 62px; z-index: 6; display: none; margin: 0 2px 8px; box-shadow: 0 -10px 40px rgba(43,42,61,.25); }
+      .duo-sheet.open { display: flex; } .duo-sheet .x { margin-left: auto; border: 0; background: #F1EEFA; border-radius: 999px; width: 30px; height: 30px; font-size: 16px; cursor: pointer; }
+      .duo-tabs.five button { font-size: 12px; padding: 9px 2px; }
+      .duo-notes { gap: 8px; }
+      .duo-notes ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+      .duo-note { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 8px; align-items: baseline; padding: 10px 12px; border-radius: 18px; background: #fff; border: 2px solid #ECE7F5; animation: duo-in .35s ease-out; }
+      .duo-note[data-level="urgent"] { border-color: #F2A3AD; background: #FFF5F6; } .duo-note[data-level="warn"] { border-color: #F7CF84; background: #FFFBF0; }
+      .duo-note .cat { font-size: 10.5px; font-weight: 800; border-radius: 999px; padding: 2px 8px; background: #F1EEFA; color: #545270; }
+      .duo-note .cat[data-cat="physical"] { background: #DDF3E8; color: #23704C; } .duo-note .cat[data-cat="mental"] { background: #EFEAFE; color: #6A4BD8; } .duo-note .cat[data-cat="financial"] { background: #FBEFD9; color: #8F5B12; }
+      .duo-note b { font-size: 14px; } .duo-note time { font-size: 11.5px; color: #6E6B87; white-space: nowrap; }
+      .duo-note p { grid-column: 1 / -1; margin: 2px 0 0; font-size: 13px; color: #545270; line-height: 1.4; }
+      .duo-notes .none { color: #6E6B87; font-size: 13.5px; margin: 0; }
+      .duo-toast { position: sticky; top: 0; z-index: 6; margin: -24px 0 10px; height: 0; overflow: visible; }
+      .duo-toast > div { display: grid; grid-template-columns: 34px 1fr; gap: 0 10px; align-items: center; padding: 10px 12px; border-radius: 20px; background: rgba(255,255,255,.97); box-shadow: 0 12px 30px rgba(43,42,61,.22); animation: duo-drop .4s ease-out; }
+      .duo-toast i { grid-row: span 2; width: 34px; height: 34px; border-radius: 10px; background: #D9475A; color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 800; }
+      .duo-toast b { font-size: 14px; } .duo-toast small { font-size: 12.5px; color: #545270; }
+      @keyframes duo-in { from { opacity: 0; transform: translateY(-6px); } } @keyframes duo-drop { from { opacity: 0; transform: translateY(-24px); } }
+      .col[data-pane] .m-card > [data-pane-of].m-actions:not([hidden]) { display: grid !important; }
+      .duo-tabs { position: sticky; bottom: 0; z-index: 4; display: flex; gap: 4px; margin: 10px -10px 0; padding: 8px 10px 12px; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); border-top: 1px solid #ECE7F5; }
+      .duo-tabs button { flex: 1; border: 0; background: none; border-radius: 999px; padding: 9px 4px; font: inherit; font-size: 13.5px; font-weight: 800; color: #6E6B87; position: relative; cursor: pointer; }
+      .duo-tabs button[aria-selected="true"] { background: #EAE3FF; color: #5C3FD6; }
+      .duo-tabs button i { position: absolute; top: 2px; right: 10%; min-width: 16px; height: 16px; border-radius: 999px; background: #D9475A; color: #fff; font-size: 10.5px; font-style: normal; line-height: 16px; padding: 0 4px; }
+      .duo-tabs button i:empty { display: none; }`;
+    function splitLive() {
+      let d; try { d = liveFrame.contentDocument; } catch (_) { return; }
+      if (!d || !d.querySelector('.col.carer')) return;
+      if (!d.getElementById('duo-css')) { const st = d.createElement('style'); st.id = 'duo-css'; st.textContent = LIVE_CSS; d.head.appendChild(st); }
+      const top = d.querySelector('.app > .top'), carer = d.querySelector('.col.carer');
+      if (top && carer) carer.prepend(top);          // the band connection card lives in my phone
+      tabsFor(d);
+      if (!d.__duoObs) { d.__duoObs = new MutationObserver(() => tabsFor(d)); d.__duoObs.observe(d.querySelector('.grid'), { childList: true, subtree: true }); }
+      autoPretend(d);
+      watchAlerts(d);
+      grandmaNames(d);
+      grandmaNames(d, '.col.margaret');
+    }
+
+    // ---- in my phone the person is Grandma (on screen only; band39-live's text stays as written in its files) ----
+    const RENAME = /\bMOM\b|\bMom\b|\bBAND\b|\bBand\b|\bband\b/;
+    const toGrandma = (t) => t.replace(/\bMOM\b/g, 'GRANDMA').replace(/\bMom\b/g, 'Grandma').replace(/\bBAND\b/g, 'DEVICE').replace(/\bBand\b/g, 'Device').replace(/\bband\b/g, 'device');
+    function renameIn(node) {
+      if (!node) return;
+      if (node.nodeType === 3) { if (RENAME.test(node.nodeValue)) node.nodeValue = toGrandma(node.nodeValue); return; }
+      if (node.nodeType !== 1 || node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
+      for (const a of ['placeholder', 'aria-label', 'title']) { const v = node.getAttribute(a); if (v && RENAME.test(v)) node.setAttribute(a, toGrandma(v)); }
+      const w = node.ownerDocument.createTreeWalker(node, 1 | 4);
+      for (let n = w.nextNode(); n; n = w.nextNode()) {
+        if (n.nodeType === 3) { if (RENAME.test(n.nodeValue)) n.nodeValue = toGrandma(n.nodeValue); }
+        else for (const a of ['placeholder', 'aria-label', 'title']) { const v = n.getAttribute(a); if (v && RENAME.test(v)) n.setAttribute(a, toGrandma(v)); }
+      }
+    }
+    function grandmaNames(d, rootSel) {
+      const root = rootSel ? d.querySelector(rootSel) : d.querySelector('.col.carer'); if (!root || root.__grandma) return; root.__grandma = true;
+      renameIn(root);
+      new MutationObserver((recs) => { for (const r of recs) { if (r.type === 'characterData') renameIn(r.target); else r.addedNodes.forEach(renameIn); } })
+        .observe(root, { childList: true, subtree: true, characterData: true });
+    }
+    // everywhere on this page: the step-by-step panel here, and the simulator frame
+    grandmaNames(document, 'main');
+    const simFrame = document.querySelector('.panel.sim iframe');
+    const simNames = () => { try { const sd = simFrame.contentDocument; if (sd && sd.body) grandmaNames(sd, 'body'); } catch (_) { /* not loaded */ } };
+    simFrame.addEventListener('load', simNames); simNames();
+
+    // ---- tabs in each phone, built from the page's own sections ----
+    const PANES = {
+      margaret: [['home', 'Home'], ['ask', 'Pip'], ['privacy', 'Privacy']],
+      carer: [['home', 'Home'], ['physical', 'Physical'], ['mental', 'Mental'], ['financial', 'Financial'], ['band', 'Device']],
+    };
+    function paneOf(el, side) {
+      const has = (q) => el.matches(q) || !!el.querySelector(q);
+      if (side === 'margaret') {
+        if (el.classList.contains('duo-privacy')) return 'privacy';
+        if (el.classList.contains('duo-chat')) return 'ask';
+        if (has('.gm-prompt')) return 'all';
+        if (has('.ask-card')) return 'ask';
+        return 'home';
+      }
+      if (el.classList.contains('cg-head')) return 'all';
+      if (el.classList.contains('duo-locked')) return el.dataset.cat;
+      if (el.classList.contains('duo-feed')) return el.dataset.cat;
+      if (el.classList.contains('duo-notes')) return 'home';
+      if (el.classList.contains('top') || has('#demo')) return 'band';
+      if (el.classList.contains('scores')) return 'pm';           // physical and mental charts: each tab shows its own
+      if (has('.live-tx, .digest, #insights')) return 'mental';
+      if (has('.money, #moneyBody, #shop')) return 'financial';
+      if (has('#docSum')) return 'physical';
+      return 'home';
+    }
+    function tabsFor(d) {
+      for (const side of ['margaret', 'carer']) {
+        const col = d.querySelector('.col.' + side); if (!col) continue;
+        const box = side === 'margaret' ? col.querySelector('.m-card') : col.querySelector('.l-card');
+        if (side === 'margaret' && box && !box.querySelector(':scope > .duo-privacy')) buildPrivacy(d, box);
+        if (side === 'margaret' && box && !box.querySelector(':scope > .duo-chat')) buildChat(d, box, 'grandma');
+        if (side === 'margaret' && box) {
+          const buddy = box.querySelector('.buddy'), say = d.getElementById('pipSay'), line = box.querySelector(':scope > .band-line');
+          if (buddy && say && !buddy.querySelector('.duo-side')) { const side2 = d.createElement('div'); side2.className = 'duo-side'; buddy.append(side2); side2.append(say); }
+          if (buddy && line) buddy.querySelector('.duo-side').append(line);   // device status sits beside Pip
+          if (!col.querySelector(':scope > .duo-sos')) {
+            const sos = d.createElement('button'); sos.type = 'button'; sos.className = 'duo-sos'; sos.innerHTML = '📞 Emergency call<small>Calls Lisa, then Ruth, then 911</small>';
+            sos.onclick = () => {
+              if (sos.classList.contains('calling')) { sos.classList.remove('calling'); sos.innerHTML = '📞 Emergency call<small>Calls Lisa, then Ruth, then 911</small>'; return; }
+              lastSimNote = Date.now();                                                    // one notification, not two
+              const help = d.querySelector('.gm-help'); if (help) help.click();          // the app's own “I need help”
+              notify(d, { cat: 'physical', level: 'urgent', title: 'Grandma pressed Emergency call', body: 'She needs help now. Call her back, then Ruth next door, then 911.', t: nowStr() });
+              sos.classList.add('calling'); sos.innerHTML = 'Calling Lisa…<small>Tap to cancel</small>';
+            };
+            const bar2 = col.querySelector(':scope > .duo-tabs'); if (bar2) bar2.before(sos); else col.append(sos);
+          }
+        }
+        if (side === 'carer' && !col.querySelector(':scope > .duo-fab')) buildChat(d, col, 'me');
+        if (side === 'carer' && box) {
+          for (const [cat, what] of [['physical', 'her health and movement'], ['mental', 'her words and memory'], ['financial', 'her money']]) {
+            if (box.querySelector(`:scope > .duo-locked[data-cat="${cat}"]`)) continue;
+            const lk = d.createElement('div'); lk.className = 'block duo-locked'; lk.dataset.cat = cat;
+            lk.innerHTML = `<span class="lock">🔒</span><b>Grandma keeps ${what} private</b><p>She chose this on her Privacy screen. Falls, “I need help”, scam calls and possible abuse still reach you.</p>`;
+            const head = box.querySelector(':scope > .cg-head'); if (head) head.after(lk); else box.prepend(lk);
+          }
+          for (const sc of box.querySelectorAll('.score')) { const k = /mental/i.test((sc.querySelector('.score-name') || sc).textContent) ? 'mental' : 'physical'; if (sc.dataset.kind !== k) sc.dataset.kind = k; }
+          for (const [cat, label] of [['physical', 'Physical'], ['mental', 'Mental'], ['financial', 'Financial']]) {
+            if (box.querySelector(`:scope > .duo-feed[data-cat="${cat}"]`)) continue;
+            const fb = d.createElement('div'); fb.className = 'block duo-notes duo-feed'; fb.dataset.cat = cat;
+            fb.innerHTML = `<div class="h">${label} events <span class="muted">· from Grandma’s band</span></div><ol></ol><p class="none">No ${label.toLowerCase()} events yet.</p>`;
+            const head = box.querySelector(':scope > .cg-head'); if (head) head.after(fb); else box.prepend(fb);
+          }
+          if (!box.querySelector(':scope > .duo-notes:not(.duo-feed)')) {
+            const nb = d.createElement('div'); nb.className = 'block duo-notes';
+            nb.innerHTML = '<div class="h">Notifications <span class="muted">· from Grandma’s band</span></div><ol></ol><p class="none">Nothing yet. When something happens to Grandma, it lands here.</p>';
+            const head = box.querySelector(':scope > .cg-head'); if (head) head.after(nb); else box.prepend(nb);
+          }
+        }
+        const parts = [...(box ? box.children : []), ...[...col.children].filter((c) => c.classList.contains('top'))].filter((c) => !c.classList.contains('duo-sheet') && !c.classList.contains('duo-sos'));
+        for (const el of parts) if (!el.classList.contains('duo-tabs')) { const v = paneOf(el, side); if (el.dataset.paneOf !== v) el.dataset.paneOf = v; }
+        if (!col.dataset.pane) col.dataset.pane = PANES[side][0][0];
+        let bar = col.querySelector(':scope > .duo-tabs');
+        if (!bar) {
+          bar = d.createElement('nav'); bar.className = 'duo-tabs' + (PANES[side].length > 4 ? ' five' : ''); bar.setAttribute('role', 'tablist');
+          for (const [id, label] of PANES[side]) {
+            const b = d.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.pane = id; b.textContent = label;
+            if (id === 'home') b.append(d.createElement('i'));
+            b.onclick = () => setPane(d, side, id); bar.append(b);
+          }
+          col.append(bar);
+          const sos2 = col.querySelector(':scope > .duo-sos'); if (sos2) bar.before(sos2);
+        }
+        for (const b of bar.children) { const v = String(b.dataset.pane === col.dataset.pane); if (b.getAttribute('aria-selected') !== v) b.setAttribute('aria-selected', v); }
+        if (d.querySelector('.duo-privacy')) applyPrivacy(d);
+        const badge = d.getElementById('tabBadge'), dot = bar.querySelector('i');
+        if (badge && dot) { const n = (badge.textContent || '').replace(/[^0-9]/g, ''); if (dot.textContent !== n) dot.textContent = n; }
+      }
+    }
+    function setPane(d, side, id) {
+      const col = d.querySelector('.col.' + side); if (!col) return;
+      col.dataset.pane = id; col.scrollTop = 0;
+      for (const b of col.querySelectorAll(':scope > .duo-tabs button')) b.setAttribute('aria-selected', String(b.dataset.pane === id));
+      if (id === 'band') { const demo = d.getElementById('demo'); if (demo) demo.open = true; }
+    }
+
+    // ---- privacy: Grandma decides what her family sees (kept in this browser) ----
+    const privacy = Object.assign({ physical: true, mental: true, financial: true }, (() => { try { return JSON.parse(localStorage.getItem('b39-privacy') || '{}'); } catch (_) { return {}; } })());
+    const SHARE = [
+      ['physical', 'My health and movement', 'Steps, walking, sleep, shaking, and Dr. Patel notes'],
+      ['mental', 'My words and memory', 'What the band hears, my mood, memory and how I talk'],
+      ['financial', 'My money', 'My card, what I buy, and bills'],
+    ];
+    function buildPrivacy(d, box) {
+      const pv = d.createElement('div'); pv.className = 'duo-privacy';
+      pv.innerHTML = '<h4>What I share</h4><p>You decide what your family sees. You can change it any time.</p>';
+      for (const [cat, title, what] of SHARE) {
+        const row = d.createElement('div'); row.className = 'duo-share'; row.dataset.cat = cat;
+        const b = d.createElement('b'); b.textContent = title;
+        const sm = d.createElement('small'); sm.textContent = what;
+        const st = d.createElement('span'); st.className = 'state';
+        const sw = d.createElement('button'); sw.type = 'button'; sw.className = 'duo-switch'; sw.setAttribute('role', 'switch'); sw.setAttribute('aria-label', 'Share ' + title.toLowerCase());
+        sw.onclick = () => { privacy[cat] = !privacy[cat]; try { localStorage.setItem('b39-privacy', JSON.stringify(privacy)); } catch (_) { /* */ } applyPrivacy(d); };
+        row.append(b, sm, st, sw); pv.append(row);
+      }
+      const al = d.createElement('div'); al.className = 'duo-always';
+      al.innerHTML = '<b>Always shared, to keep you safe</b><p>If you fall, press “I need help”, get a scam call, or someone hurts you, your family is told right away.</p>';
+      const sees = d.createElement('div'); sees.className = 'duo-sees'; sees.innerHTML = '<b>Your family can see now:</b><ul></ul>';
+      pv.append(al, sees);
+      const help = box.querySelector(':scope > .gm-help'); if (help) help.after(pv); else box.append(pv);
+      applyPrivacy(d);
+    }
+    function applyPrivacy(d) {
+      const carer = d.querySelector('.col.carer');
+      for (const [cat, title] of SHARE) {
+        if (carer) { if (privacy[cat]) carer.removeAttribute('data-private-' + cat); else carer.setAttribute('data-private-' + cat, ''); }
+        const row = d.querySelector(`.duo-share[data-cat="${cat}"]`); if (!row) continue;
+        const on = privacy[cat] ? '1' : '0'; if (row.dataset.on !== on) row.dataset.on = on;
+        const sw = row.querySelector('.duo-switch'); if (sw.getAttribute('aria-checked') !== String(privacy[cat])) sw.setAttribute('aria-checked', String(privacy[cat]));
+        const st = row.querySelector('.state'), txt = privacy[cat] ? 'Shared with family' : 'Private: only you'; if (st.textContent !== txt) st.textContent = txt;
+      }
+      const ul = d.querySelector('.duo-sees ul');
+      if (ul) {
+        const want = SHARE.filter(([cat]) => privacy[cat]).map(([, title]) => title.replace(/^My /, 'Your ')).concat('Emergencies: falls, help, scams, abuse');
+        if ([...ul.children].map((li) => li.textContent).join('|') !== want.join('|')) {
+          ul.textContent = ''; for (const w of want) { const li = d.createElement('li'); li.textContent = w; ul.append(li); }
+        }
+      }
+    }
+
+    // ---- AI chat: Pip for Grandma (/api/pip), an assistant about Grandma for me (/api/ask, only what she shares) ----
+    const noteLog = [];
+    const nowStr = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    function buildChat(d, host, who) {
+      const big = who === 'grandma';
+      const chat = d.createElement('div'); chat.className = 'duo-chat' + (big ? ' big' : ' duo-sheet');
+      chat.innerHTML = big
+        ? '<h4>Your AI assistant <small>· Pip</small></h4>'
+        : '<h4>Ask about Grandma <small>· AI, from what she shares</small><button class="x" type="button" aria-label="Close">×</button></h4>';
+      const msgs = d.createElement('div'); msgs.className = 'duo-msgs'; msgs.setAttribute('aria-live', 'polite');
+      const chips = d.createElement('div'); chips.className = 'duo-chips';
+      const form = d.createElement('form'); form.className = 'duo-send';
+      const input = d.createElement('input'); input.type = 'text'; input.maxLength = 400; input.placeholder = big ? 'Say something to Pip…' : 'Ask about Grandma…';
+      input.setAttribute('aria-label', big ? 'Message to Pip' : 'Question about Grandma');
+      const go = d.createElement('button'); go.type = 'submit'; go.textContent = 'Send';
+      form.append(input, go);
+      const history = [];
+      const add = (cls, text, note) => { const m = d.createElement('div'); m.className = 'duo-msg ' + cls; m.textContent = text; if (note) { const sm = d.createElement('small'); sm.textContent = note; m.append(sm); } msgs.append(m); msgs.scrollTop = msgs.scrollHeight; return m; };
+      add('bot', big ? 'Hello Margaret! I’m Pip. What would you like to talk about?' : 'Hi! Ask me how Grandma is doing. I only know what she chooses to share, plus safety alerts.');
+      const starters = big ? ['What day is it?', 'When are my pills?', 'I feel a bit lonely', 'Remind me to call Lisa at 6'] : ['How is Grandma today?', 'Anything I should worry about?', 'Is her card OK?', 'What should I do next?'];
+      for (const q of starters) { const b = d.createElement('button'); b.type = 'button'; b.textContent = q; b.onclick = () => send(q); chips.append(b); }
+      let speakBtn = null;
+      if (big) { speakBtn = d.createElement('button'); speakBtn.type = 'button'; speakBtn.className = 'duo-say'; speakBtn.textContent = '🔈 Read Pip’s answer to me';
+        speakBtn.onclick = () => { const last = [...msgs.querySelectorAll('.duo-msg.bot')].pop(); try { const w = liveFrame.contentWindow; w.speechSynthesis.cancel(); w.speechSynthesis.speak(new w.SpeechSynthesisUtterance(last ? last.firstChild.textContent : '')); } catch (_) { /* */ } }; }
+      chat.append(msgs, chips, form); if (speakBtn) chat.append(speakBtn);
+      async function send(text) {
+        text = (text || '').trim(); if (!text) return; input.value = '';
+        add('me', text); const wait = add('bot wait', big ? 'Pip is thinking…' : 'Thinking…');
+        try {
+          let reply = '', note = '';
+          if (big) {
+            const next = (d.querySelector('.gm-today') || {}).innerText || '';
+            const ctx = { time: nowStr(), day: new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }), mode: new Date().getHours() < 6 || new Date().getHours() >= 21 ? 'night' : 'day', today_screen: next.replace(/\s+/g, ' ').slice(0, 300) };
+            const r = await (await fetch('/api/pip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ said: text, context: ctx, history }) })).json();
+            reply = r.reply || 'I’m here with you.';
+            for (const a of r.actions || []) {
+              if (a.type === 'set_reminder') note = 'Reminder: ' + (a.text || text) + (a.when ? ' · ' + a.when : '');
+              if (a.type === 'tell_lisa') notify(d, { cat: 'mental', level: 'info', title: 'Grandma asked Pip to tell you', body: a.text || text, t: nowStr() });
+              if (a.type === 'need_help') notify(d, { cat: 'physical', level: 'urgent', title: 'Grandma asked Pip for help', body: text, t: nowStr() });
+              if (a.type === 'scam_guard') notify(d, { cat: 'financial', level: 'urgent', title: 'Possible scam: Grandma asked Pip', body: text, t: nowStr() });
+            }
+            history.push({ who: 'margaret', text }, { who: 'pip', text: reply });
+          } else {
+            const priv = Object.keys(privacy).filter((k) => !privacy[k]);
+            const facts = {
+              notifications: noteLog.slice(-25).map((n) => `${n.t} [${n.cat}] ${n.title}: ${n.body}`),
+              alerts: [...d.querySelectorAll('#cgAlerts li.al')].slice(0, 8).map((li) => li.innerText.replace(/\s+/g, ' ').slice(0, 220)),
+              card: (d.querySelector('.paycard .st') || {}).textContent || 'unknown',
+              private_areas: priv.length ? priv.join(', ') + ' (Grandma keeps these private: do not guess about them)' : 'none',
+              timeline: [...d.querySelectorAll('#cgTimeline li')].slice(0, 10).map((li) => li.innerText.replace(/\s+/g, ' ')),
+            };
+            const r = await (await fetch('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: text, facts }) })).json();
+            reply = r.answer || 'I couldn’t find that in what Grandma shares.';
+            if (r.based_on && r.based_on.length) note = 'From: ' + r.based_on.join(', ');
+          }
+          wait.remove(); add('bot', reply, note);
+        } catch (e) { wait.remove(); add('bot', 'Sorry, I can’t reach the AI right now.'); }
+      }
+      form.addEventListener('submit', (e) => { e.preventDefault(); send(input.value); });
+      if (big) {
+        const ask = host.querySelector(':scope > .ask-card') || host.querySelector('.ask-card');
+        if (ask && ask.parentElement === host) ask.after(chat); else { const help = host.querySelector(':scope > .gm-help'); if (help) help.before(chat); else host.append(chat); }
+      } else {
+        const fab = d.createElement('button'); fab.type = 'button'; fab.className = 'duo-fab'; fab.textContent = '✨ Ask AI';
+        fab.onclick = () => { chat.classList.toggle('open'); if (chat.classList.contains('open')) input.focus(); };
+        chat.querySelector('.x').onclick = () => chat.classList.remove('open');
+        const bar = host.querySelector(':scope > .duo-tabs');
+        if (bar) { bar.before(fab); bar.before(chat); } else { host.append(fab); host.append(chat); }
+      }
+    }
+
+    // ---- notifications to me, under Home ----
+    let lastSimNote = 0;
+    const CAT_NAME = { physical: 'Physical', mental: 'Mental', financial: 'Financial' };
+    function guessCat(text) { return /scam|card|money|gift|bank|wire|charge|bill|fraud|pay/i.test(text) ? 'financial' : /memory|confus|speech|lonel|isolat|abuse|sad|repeat|mood|day/i.test(text) ? 'mental' : 'physical'; }
+    const SAFETY = /fall|help|sos|scam|abuse|seizure|chest|pin/i;
+    function notify(d, n) {
+      const box = d.querySelector('.col.carer .l-card > .duo-notes:not(.duo-feed)'); if (!box) return;
+      const isPrivate = n.cat && privacy[n.cat] === false;
+      const safety = n.level === 'urgent' || SAFETY.test(n.title || '');
+      if (isPrivate && !safety) return;                       // Grandma keeps this to herself
+      noteLog.push({ t: n.t || '', cat: n.cat, title: n.title || '', body: n.body || '' }); if (noteLog.length > 40) noteLog.shift();
+      const ol = box.querySelector('ol'), none = box.querySelector('.none'); if (none) none.remove();
+      const feed = d.querySelector(`.col.carer .l-card > .duo-feed[data-cat="${n.cat}"]`);
+      const li = d.createElement('li'); li.className = 'duo-note'; li.dataset.level = n.level || 'info';
+      const cat = d.createElement('span'); cat.className = 'cat'; cat.dataset.cat = n.cat; cat.textContent = CAT_NAME[n.cat] || 'Update';
+      const b = d.createElement('b'); b.textContent = n.title || '';
+      const t = d.createElement('time'); t.textContent = n.t || new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const p = d.createElement('p'); p.textContent = n.body || '';
+      li.append(cat, b, t); if (n.body) li.append(p);
+      if (isPrivate) { const sf = d.createElement('span'); sf.className = 'safety'; sf.textContent = 'Shared for safety'; li.append(sf); }
+      ol.prepend(li);
+      while (ol.children.length > 30) ol.lastChild.remove();
+      if (feed) { const fn = feed.querySelector('.none'); if (fn) fn.remove(); feed.querySelector('ol').prepend(li.cloneNode(true)); }
+      setPane(d, 'carer', 'home');
+      if (n.level === 'urgent' || n.level === 'warn') {          // a push-style banner at the top of my phone
+        const col = d.querySelector('.col.carer'); const old = col.querySelector(':scope > .duo-toast'); if (old) old.remove();
+        const toast = d.createElement('div'); toast.className = 'duo-toast';
+        const card = d.createElement('div'); const ic = d.createElement('i'); ic.textContent = '!'; if (n.level !== 'urgent') ic.style.background = '#F2A93B';
+        const tb = d.createElement('b'); tb.textContent = n.title || ''; const ts = d.createElement('small'); ts.textContent = 'Grandma · ' + (CAT_NAME[n.cat] || '') + (n.t ? ' · ' + n.t : '');
+        card.append(ic, tb, ts); toast.append(card); col.prepend(toast);
+        setTimeout(() => toast.remove(), 5200);
+      }
+    }
+    function watchAlerts(d) {             // band39-live's own alerts (from its demo buttons or a real band) also notify me
+      const ul = d.getElementById('cgAlerts'); if (!ul || ul.__duo) return; ul.__duo = true;
+      let seen = new Set([...ul.querySelectorAll('li')].map((li) => li.textContent));
+      new MutationObserver(() => {
+        const now = [...ul.querySelectorAll('li.al')];
+        for (const li of now) {
+          const key = li.textContent; if (seen.has(key)) continue; seen.add(key);
+          if (Date.now() - lastSimNote < 4000) continue;     // the simulator already sent this one
+          const title = (li.querySelector('.al-top b, b') || li).textContent.trim();
+          const body = (li.querySelector('p') || {}).textContent || '';
+          const level = li.classList.contains('al-urgent') ? 'urgent' : li.classList.contains('al-warn') ? 'warn' : 'info';
+          notify(d, { cat: guessCat(title + ' ' + body), level, title, body });
+        }
+      }).observe(ul, { childList: true, subtree: true });
+    }
+
+    // ---- the simulator drives the portals: each event becomes one of band39-live's own demo actions ----
+    let pretendAsked = false;
+    function connected(d) { const r = d.getElementById('live'); return r && r.dataset.conn && r.dataset.conn !== 'none'; }
+    function autoPretend(d) { if (pretendAsked || connected(d)) return; const b = d.getElementById('lvUseSim'); if (b) { pretendAsked = true; b.click(); } }
+    const MOTION = { walk: 'walk', tremor: 'tremor', shaky: 'shaky', fall: 'fall', seizure: 'seizure', sleep: 'restless', nightwalk: 'nightwalk', sit: 'stop', idle: 'stop', bandoff: 'stop' };
+    const ACT_OF = { 'Walks': 'walk', 'Hand shakes': 'tremor', 'Unsteady': 'shaky', 'Falls': 'fall', 'Shaking': 'seizure', 'Restless sleep': 'sleep', 'Walks at night': 'nightwalk', 'Sits still': 'sit', 'At home': 'idle', 'Band off': 'bandoff', 'Presses SOS': 'sos' };
+    function syncFromSim(e) {
+      let d; try { d = liveFrame.contentDocument; } catch (_) { return; }
+      if (!d || !d.getElementById('live')) return;
+      const run = () => {
+        const q = (sel) => d.querySelector(sel);
+        const night = /am$/.test(e.t || '') && parseInt(e.t, 10) < 6;
+        const clock = d.getElementById(night ? 'nightBtn' : 'dayBtn'); if (clock) clock.click();
+        const act = ACT_OF[e.does];
+        if (act && MOTION[act]) { const b = q(`[data-sig="${MOTION[act]}"]`); if (b) b.click(); }
+        const lisa = e.lisa || {};
+        if (e.name === 'Scam attempt' || /PIN/.test(e.name)) { const b = q('[data-card="scam"]'); if (b) b.click(); }
+        else if (e.name === 'Fraudulent transaction') { const b = q('[data-buy^="45000|"]'); if (b) b.click(); }
+        else if (/wire/i.test(e.say || '')) { const b = q('[data-buy^="4000|"]'); if (b) b.click(); }
+        if (act === 'sos') { const b = q('.gm-help'); if (b) b.click(); }
+        if (e.say && !(e.name === 'Scam attempt' || /PIN/.test(e.name))) {     // her words go through the app's own note analysis
+          const inp = d.getElementById('noteText'), form = d.getElementById('noteForm');
+          if (inp && form) { inp.value = e.say; form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true })); }
+        }
+        // show it: Grandma on Today, and a notification to me under Home (the simulator's own words for Lisa)
+        setPane(d, 'margaret', 'home');
+        lastSimNote = Date.now();
+        notify(d, { cat: e.cat, level: lisa.level, title: lisa.title || e.name, body: lisa.body || '', t: e.t });
+      };
+      if (connected(d)) run(); else { autoPretend(d); setTimeout(run, 1800); }
+    }
+    liveFrame.addEventListener('load', splitLive);
+    splitLive();
+    const fit = document.querySelector('.duo-fit'), duo = document.querySelector('.duo');
+    new ResizeObserver(() => { const k = Math.min(1, fit.clientWidth / 804); duo.style.setProperty('--k', String(k)); fit.style.setProperty('--k', String(k)); }).observe(fit);
+  })();
+</script>
+</body>
+</html>

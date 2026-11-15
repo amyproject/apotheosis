@@ -1,0 +1,6 @@
+.env
+tools/.superserve.json
+__pycache__/
+xcuserdata/
+.DS_Store
+.impeccable/
