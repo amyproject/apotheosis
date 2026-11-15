@@ -84,9 +84,10 @@
   @media (max-width: 860px) { .duo-heads { grid-template-columns: 1fr 1fr; } .duo-fit { width: 100%; height: calc(812px * var(--k, 1)); } }
   /* order: simulator, then me, then grandma */
   main { grid-template-columns: minmax(660px, 1fr) 392px 392px; }
-  .panel.sim { grid-column: 1; grid-row: 1 / span 2; }
-  .panel.portals { grid-column: 2 / 4; grid-row: 1; }
-  .flowp { grid-column: 2 / 4; grid-row: 2; }
+  .panel.sim { grid-column: 1; grid-row: 1; }
+  .panel.portals { grid-column: 2 / 4; grid-row: 1 / span 2; }
+  .flowp { grid-column: 1; grid-row: 2; }                 /* the event, large, under the 3D simulator */
+  .flowp .lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
   @media (max-width: 1360px) { main { grid-template-columns: 392px 392px; } .panel.sim { grid-column: 1 / -1; grid-row: 1; } .panel.portals { grid-column: 1 / -1; grid-row: 2; } .flowp { grid-column: 1 / -1; grid-row: 3; } }
   @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
   :focus-visible { outline: 3px solid var(--terra); outline-offset: 2px; }
@@ -95,7 +96,6 @@
 <body>
 <header>
   <h1>Apotheosis</h1>
-  <p>The simulator, then my app and Grandma’s screen from band39-live.</p>
   <div class="tabs" role="tablist" aria-label="Screens">
     
         <button role="tab" data-show="sim" aria-selected="true">Simulator</button>
@@ -221,6 +221,32 @@
       .duo-chat.big .duo-send input { font-size: 18px; padding: 13px 16px; }
       .duo-send button { border: 0; border-radius: 999px; padding: 0 18px; font: inherit; font-weight: 800; background: #7A5CF0; color: #fff; cursor: pointer; }
       .duo-say { align-self: flex-start; border: 0; background: none; color: #5C3FD6; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; padding: 2px 4px; }
+      /* daily report (me, Home) */
+      .duo-report { display: flex; flex-direction: column; gap: 12px; background: #fff; border-radius: 26px; padding: 16px; border: 2px solid #E2D8FF; }
+      .duo-report .rp-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      .duo-report .rp-top b { font-size: 17px; } .duo-report .rp-top small { color: #6E6B87; font-size: 12.5px; }
+      .duo-report .rp-head { margin: 0; font-size: 17px; line-height: 1.4; font-weight: 700; color: #2B2A3D; }
+      .rp-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .rp-tile { border-radius: 18px; padding: 10px; background: #F7F5FD; display: flex; flex-direction: column; gap: 2px; }
+      .rp-tile[data-cat="physical"] { background: #EEF9F2; } .rp-tile[data-cat="mental"] { background: #F3EFFF; } .rp-tile[data-cat="financial"] { background: #FFF6E3; }
+      .rp-tile small { font-size: 11.5px; font-weight: 800; color: #545270; text-transform: uppercase; letter-spacing: .04em; }
+      .rp-tile b { font-size: 26px; line-height: 1.1; } .rp-tile span { font-size: 12px; font-weight: 700; }
+      .rp-tile span.up { color: #B23345; } .rp-tile span.down { color: #2C8A5E; } .rp-tile span.same { color: #6E6B87; }
+      .rp-tile.private b { font-size: 15px; color: #6E6B87; }
+      .rp-trend { display: grid; gap: 4px; font-size: 13.5px; color: #3D3B55; background: #FAF8FF; border-radius: 16px; padding: 10px 12px; }
+      .rp-sec { border-radius: 18px; background: #FAF8FF; padding: 10px 12px; }
+      .rp-sec > summary { cursor: pointer; font-weight: 800; font-size: 15px; list-style: none; display: flex; justify-content: space-between; }
+      .rp-sec > summary::after { content: '›'; transform: rotate(90deg); color: #7A5CF0; } .rp-sec[open] > summary::after { transform: rotate(-90deg); }
+      .rp-sec ul { margin: 8px 0 2px; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; line-height: 1.4; }
+      .rp-sec.warn { background: #FFF5F6; } .rp-sec.warn > summary { color: #B23345; }
+      .rp-steps { list-style: none; padding: 0 !important; }
+      .rp-steps label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; } .rp-steps input { width: 20px; height: 20px; accent-color: #7A5CF0; margin-top: 1px; flex: none; }
+      .rp-steps input:checked + span { text-decoration: line-through; color: #6E6B87; }
+      .rp-doc { white-space: pre-wrap; font-size: 13.5px; color: #3D3B55; margin: 8px 0; }
+      .rp-btn { border: 0; border-radius: 999px; padding: 9px 14px; font: inherit; font-weight: 800; font-size: 13.5px; background: #7A5CF0; color: #fff; cursor: pointer; }
+      .rp-btn.ghost { background: #F1EEFA; color: #2B2A3D; }
+      .rp-empty { margin: 0; color: #6E6B87; font-size: 14px; }
+      .duo-report .fine { margin: 0; font-size: 11.5px; color: #6E6B87; }
       /* Grandma: simple and large */
       .col.margaret { font-size: 17px; }
       .col.margaret .m-card { gap: 14px; padding: 16px; }
@@ -299,7 +325,7 @@
     grandmaNames(document, 'main');
     const simFrame = document.querySelector('.panel.sim iframe');
     const simNames = () => { try { const sd = simFrame.contentDocument; if (sd && sd.body) grandmaNames(sd, 'body'); } catch (_) { /* not loaded */ } };
-    simFrame.addEventListener('load', simNames); simNames();
+    simFrame.addEventListener('load', () => { simNames(); setTimeout(watchSimDay, 500); }); simNames(); setTimeout(watchSimDay, 1500);
 
     // ---- tabs in each phone, built from the page's own sections ----
     const PANES = {
@@ -316,6 +342,7 @@
         return 'home';
       }
       if (el.classList.contains('cg-head')) return 'all';
+      if (el.classList.contains('duo-report')) return 'home';
       if (el.classList.contains('duo-locked')) return el.dataset.cat;
       if (el.classList.contains('duo-feed')) return el.dataset.cat;
       if (el.classList.contains('duo-notes')) return 'home';
@@ -363,10 +390,19 @@
             fb.innerHTML = `<div class="h">${label} events <span class="muted">· from Grandma’s band</span></div><ol></ol><p class="none">No ${label.toLowerCase()} events yet.</p>`;
             const head = box.querySelector(':scope > .cg-head'); if (head) head.after(fb); else box.prepend(fb);
           }
+          if (!box.querySelector(':scope > .duo-report')) {
+            const rp = d.createElement('div'); rp.className = 'duo-report';
+            rp.innerHTML = '<div class="rp-top"><b>Today’s report</b><button class="rp-btn" type="button">Make today’s report</button></div><p class="rp-empty">After Grandma’s day (press Play in the simulator, or tap a few events), her report appears here: what happened, the trend, and how you can help.</p>';
+            rp.querySelector('.rp-btn').onclick = () => makeReport(d);
+            const head = box.querySelector(':scope > .cg-head'); if (head) head.after(rp); else box.prepend(rp);
+          }
+          { const head = box.querySelector(':scope > .cg-head'), rp = box.querySelector(':scope > .duo-report');      // report first on Home
+            if (head && rp && head.nextElementSibling !== rp) head.after(rp); }
           if (!box.querySelector(':scope > .duo-notes:not(.duo-feed)')) {
             const nb = d.createElement('div'); nb.className = 'block duo-notes';
             nb.innerHTML = '<div class="h">Notifications <span class="muted">· from Grandma’s band</span></div><ol></ol><p class="none">Nothing yet. When something happens to Grandma, it lands here.</p>';
             const head = box.querySelector(':scope > .cg-head'); if (head) head.after(nb); else box.prepend(nb);
+            const rp2 = box.querySelector(':scope > .duo-report'); if (head && rp2) head.after(rp2);
           }
         }
         const parts = [...(box ? box.children : []), ...[...col.children].filter((c) => c.classList.contains('top'))].filter((c) => !c.classList.contains('duo-sheet') && !c.classList.contains('duo-sos'));
@@ -511,6 +547,91 @@
       }
     }
 
+    // ---- daily report for me (Home): what happened, the trend, how to help (/api/report; respects Grandma's privacy) ----
+    const dayLog = [];
+    const USUAL = { physical: 3, mental: 2, financial: 1 };       // a usual day, from sample history
+    let reportBusy = false;
+    async function makeReport(d, auto) {
+      const rp = d.querySelector('.duo-report'); if (!rp || reportBusy) return;
+      const ok = (e) => privacy[e.cat] !== false || e.level === 'urgent' || SAFETY.test(e.alert || e.event);
+      const evs = dayLog.filter(ok);
+      const top = rp.querySelector('.rp-top');
+      rp.textContent = ''; rp.append(top);
+      if (!evs.length) { const p = d.createElement('p'); p.className = 'rp-empty'; p.textContent = 'Nothing to report yet. Press Play in the simulator, or tap a few events, then try again.'; rp.append(p); return; }
+      reportBusy = true; const btn = top.querySelector('.rp-btn'); btn.textContent = 'Writing…'; btn.disabled = true;
+      const wait = d.createElement('p'); wait.className = 'rp-empty'; wait.textContent = 'Writing Grandma’s report…'; rp.append(wait);
+      let r = null;
+      try {
+        const facts = { events: evs.slice(-40), card: { status: (d.querySelector('.paycard .st') || {}).textContent || '' }, date: new Date().toDateString(),
+          private_areas: Object.keys(privacy).filter((k) => !privacy[k]) };
+        r = await (await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ facts }) })).json();
+      } catch (_) { r = null; }
+      wait.remove(); reportBusy = false; btn.textContent = 'Update report'; btn.disabled = false;
+      const el = (tag, cls, text) => { const n = d.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+      const when = el('small', '', new Date().toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + evs.length + ' events');
+      top.querySelector('b').textContent = 'Today’s report'; if (!top.querySelector('small')) top.querySelector('b').after(when);
+      rp.append(el('p', 'rp-head', (r && r.headline) || `Grandma had ${evs.length} things worth knowing about today.`));
+      // tiles: today vs a usual day
+      const tiles = el('div', 'rp-tiles');
+      for (const cat of ['physical', 'mental', 'financial']) {
+        const t = el('div', 'rp-tile'); t.dataset.cat = cat; t.append(el('small', '', CAT_NAME[cat]));
+        if (privacy[cat] === false) { t.classList.add('private'); t.append(el('b', '', 'Private'), el('span', 'same', 'Grandma’s choice')); tiles.append(t); continue; }
+        const n = evs.filter((e) => e.cat === cat).length, u = USUAL[cat];
+        const cls = n > u ? 'up' : n < u ? 'down' : 'same';
+        t.append(el('b', '', String(n)), el('span', cls, n > u ? `↑ ${n - u} more than usual` : n < u ? `↓ ${u - n} fewer than usual` : 'About usual'));
+        tiles.append(t);
+      }
+      rp.append(tiles);
+      // trend: the health scores already on my phone
+      const tr = el('div', 'rp-trend');
+      for (const sc of d.querySelectorAll('.col.carer .score')) {
+        const kind = sc.dataset.kind; if (privacy[kind] === false) continue;
+        const num = (sc.querySelector('.score-num') || {}).firstChild; const trend = (sc.querySelector('.score-trend') || {}).textContent || '';
+        tr.append(el('div', '', `${kind === 'mental' ? 'Mental' : 'Physical'} health ${num ? num.textContent.trim() : ''}/100 · ${trend.trim()}`));
+      }
+      if (tr.children.length) rp.append(tr);
+      const sec = (title, items, cls, open) => {
+        const dd = el('details', 'rp-sec' + (cls ? ' ' + cls : '')); if (open) dd.open = true;
+        dd.append(el('summary', '', title)); const ul = el('ul'); for (const it of items) ul.append(el('li', '', it)); dd.append(ul); return dd;
+      };
+      const concerns = (r && r.concerns || []).filter((x) => !/^none/i.test(x));
+      if (concerns.length) rp.append(sec('Needs your attention', concerns, 'warn', true));
+      for (const cat of ['physical', 'mental', 'financial']) {
+        if (privacy[cat] === false) continue;
+        const items = (r && r[cat]) || evs.filter((e) => e.cat === cat).map((e) => `${e.time} ${e.alert || e.event}`);
+        if (items.length && !(items.length === 1 && /nothing notable/i.test(items[0]))) rp.append(sec('What happened · ' + CAT_NAME[cat], items));
+      }
+      const steps = (r && r.next_steps) || [];
+      if (steps.length) {
+        const dd = el('details', 'rp-sec'); dd.open = true; dd.append(el('summary', '', 'How you can help'));
+        const ul = el('ul', 'rp-steps'); for (const st of steps) { const li = el('li'); const lb = el('label'); const cb = el('input'); cb.type = 'checkbox'; lb.append(cb, el('span', '', st)); li.append(lb); ul.append(li); }
+        dd.append(ul); rp.append(dd);
+      }
+      if (r && r.for_doctor) {
+        const dd = el('details', 'rp-sec'); dd.append(el('summary', '', 'Note for Dr. Patel'));
+        dd.append(el('p', 'rp-doc', r.for_doctor));
+        const cp = el('button', 'rp-btn ghost', 'Copy note'); cp.type = 'button';
+        cp.onclick = () => { try { navigator.clipboard.writeText(r.for_doctor).then(() => { cp.textContent = 'Copied'; }); } catch (_) { /* */ } };
+        dd.append(cp); rp.append(dd);
+      }
+      rp.append(el('p', 'fine', (r && r.source === 'openai' ? 'Written by AI from today’s events. ' : 'Made from today’s events. ') + '“Usual” is from sample history. Signals, not diagnoses.'));
+      if (auto) notify(d, { cat: 'mental', level: 'info', title: 'Grandma’s daily report is ready', body: (r && r.headline) || '', t: nowStr() });
+      setPane(d, 'carer', 'home'); const col = d.querySelector('.col.carer'); if (col) col.scrollTop = 0;
+    }
+    // when the simulator finishes a whole day, make the report by itself; a new Play starts a new day
+    function watchSimDay() {
+      let sd; try { sd = simFrame.contentDocument; } catch (_) { return; }
+      const now = sd && sd.getElementById('qNow'), play = sd && sd.getElementById('qPlay');
+      if (!now || now.__duo) return; now.__duo = true;
+      if (play) play.addEventListener('click', () => { dayLog.length = 0; }, true);
+      let wasDone = false;
+      new MutationObserver(() => {
+        const done = !!now.querySelector('.q-tag') && /Done/.test(now.querySelector('.q-tag').textContent);
+        if (done && !wasDone) { const d = liveFrame.contentDocument; setTimeout(() => makeReport(d, true), 1200); }
+        wasDone = done;
+      }).observe(now, { childList: true, subtree: true });
+    }
+
     // ---- notifications to me, under Home ----
     let lastSimNote = 0;
     const CAT_NAME = { physical: 'Physical', mental: 'Mental', financial: 'Financial' };
@@ -587,6 +708,7 @@
         // show it: Grandma on Today, and a notification to me under Home (the simulator's own words for Lisa)
         setPane(d, 'margaret', 'home');
         lastSimNote = Date.now();
+        dayLog.push({ time: e.t, area: (e.catName || e.cat) + ' health', cat: e.cat, event: e.name, alert: lisa.title || '', detail: lisa.body || '', level: lisa.level || 'info', margaret_said: e.say || '' });
         notify(d, { cat: e.cat, level: lisa.level, title: lisa.title || e.name, body: lisa.body || '', t: e.t });
       };
       if (connected(d)) run(); else { autoPretend(d); setTimeout(run, 1800); }

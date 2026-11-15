@@ -21,7 +21,6 @@
     ['9:40 am', 'financial', 'Scam attempt', 'phone', {}, 'Gift cards for his bail? Okay…', RED, ['urgent', 'Possible scam call', 'A caller says her grandson is in jail and wants gift cards. Her card is frozen. Call Mom now.', 'scam']],
     ['9:55 am', 'financial', 'Gift cards for $450', 'walk', { to: 'door' }, '', null, 'card'],
     ['10:15 am', 'physical', 'Tremor', 'tremor', {}, '', null, ['info', 'Shaking score 2/4', 'Left hand, 5.1 Hz, about 4 minutes this morning.']],
-    ['10:30 am', 'financial', 'Fraudulent transaction', 'sit', {}, '', null, ['warn', 'Fraudulent transaction blocked', '$389 online charge from QuickShop Intl, a shop Mom never uses. Declined.', 'fraud']],
     ['10:50 am', 'mental', 'Speech deterioration', 'talk', {}, 'The, um, the thingy… the place with the books.', null, ['info', 'Speech deterioration', 'More fillers and “thingy” than usual today.']],
     ['11:30 am', 'financial', 'Fake bank asks for her PIN', 'phone', {}, 'My PIN is my birthday…', RED, ['urgent', 'Possible scam: bank PIN', 'Someone claiming to be her bank asked for a code and her PIN.', 'scam']],
     ['12:15 pm', 'physical', 'Unsteady walk', 'shaky', {}, '', null, ['warn', 'Balance dropped to 58', 'Irregular steps and more sway on her walk after lunch.']],
@@ -161,7 +160,7 @@
     }
   }
   // one button per key event, grouped 1 Physical · 2 Financial · 3 Mental; a click plays just that event
-  const PICK = [['physical', ['Fall', 'Tremor', 'Medicine taken']], ['financial', ['Scam attempt', 'Fraudulent transaction', 'Missed bill payment']],
+  const PICK = [['physical', ['Fall', 'Tremor', 'Medicine taken']], ['financial', ['Scam attempt', 'Missed bill payment']],
     ['mental', ['Memory decline', 'Speech deterioration', 'Social isolation', 'Abuse detection']]];
   const box = $('qEvents');
   if (box) {

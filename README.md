@@ -78,6 +78,13 @@ The AI chats use `/api/pip` and `/api/ask` (OpenAI key in `~/.config/vexo-band39
 
 `apotheosis-ios/` is the iPhone app (Apotheosis): the band39-live care app with a design layer, Margaret / Lisa / Device tabs.
 
+## On Vercel
+
+`vercel.json` serves the product page at `/` (everything else from `web/`), and `api/index.py` is the web demo's API:
+Pip, Ask AI, the daily report and note analysis reuse `server/agents.py` and `server/insights.py`. Add `OPENAI_API_KEY`
+in the Vercel project for AI answers; without it they answer with built-in rules. The live transcript, voices and
+card sync need the laptop server and say "offline" on Vercel.
+
 ## Credits
 
 `web/live/` and `apotheosis-ios/web/` are copies of the care app from [suarezc/band39-live](https://github.com/suarezc/band39-live)

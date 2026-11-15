@@ -1,0 +1,9 @@
+{
+  "functions": { "api/index.py": { "includeFiles": "server/**" } },
+  "rewrites": [
+    { "source": "/live/api/:route*", "destination": "/api/index?route=:route*" },
+    { "source": "/api/:route*", "destination": "/api/index?route=:route*" },
+    { "source": "/", "destination": "/web/product.html" },
+    { "source": "/:path((?!api/|web/).*)", "destination": "/web/:path" }
+  ]
+}
