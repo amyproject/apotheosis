@@ -176,7 +176,8 @@
       .m-actions { grid-template-columns: 1fr; } .l-card { padding: 14px; } .sig-grid { grid-template-columns: 1fr 1fr; }
       .app .col.margaret, .app .col.carer { padding-bottom: 0; display: flex !important; flex-direction: column; }
       .col > .m-card, .col > .l-card { flex: 1 0 auto; }
-      .col[data-pane="home"] :where([data-pane-of]:not([data-pane-of="home"],[data-pane-of="all"])) { display: none !important; }
+      .col[data-pane="home"] :where([data-pane-of]:not([data-pane-of="home"],[data-pane-of="all"],[data-pane-of="ha"])) { display: none !important; }
+      .col[data-pane="alerts"] :where([data-pane-of]:not([data-pane-of="alerts"],[data-pane-of="all"],[data-pane-of="ha"])) { display: none !important; }
       .col[data-pane="ask"] :where([data-pane-of]:not([data-pane-of="ask"],[data-pane-of="all"])) { display: none !important; }
       .col[data-pane="privacy"] :where([data-pane-of]:not([data-pane-of="privacy"],[data-pane-of="all"])) { display: none !important; }
       .col[data-pane="physical"] :where([data-pane-of]:not([data-pane-of="physical"],[data-pane-of="all"],[data-pane-of="pm"])) { display: none !important; }
@@ -253,6 +254,29 @@
       .rp-btn.ghost { background: #F1EEFA; color: #2B2A3D; }
       .rp-empty { margin: 0; color: #6E6B87; font-size: 14px; }
       .duo-report .fine { margin: 0; font-size: 11.5px; color: #6E6B87; }
+      .rp-card { background: #FAF8FF; border-radius: 18px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+      .rp-card h5 { margin: 0; font-size: 12.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #545270; display: flex; justify-content: space-between; }
+      .rp-card h5 small { font-weight: 600; letter-spacing: 0; text-transform: none; color: #6E6B87; }
+      .rp-bar { display: grid; grid-template-columns: 62px 1fr 74px; gap: 8px; align-items: center; font-size: 12.5px; }
+      .rp-bar .lab { font-weight: 700; color: #2B2A3D; } .rp-bar .val { font-weight: 700; color: #3D3B55; font-variant-numeric: tabular-nums; }
+      .rp-track { position: relative; height: 12px; border-radius: 6px; background: #ECE7F5; }
+      .rp-track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; }
+      .rp-track u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #2B2A3D; border-radius: 1px; }
+      .rp-svg { display: block; width: 100%; height: auto; overflow: visible; }
+      .rp-svg text { font: 600 10px ui-rounded, system-ui, sans-serif; fill: #6E6B87; }
+      .rp-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: #3D3B55; font-weight: 600; }
+      .rp-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+      .rp-spark { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .rp-spark > div { background: #fff; border-radius: 14px; padding: 8px; }
+      .rp-spark b { font-size: 20px; } .rp-spark small { display: block; font-size: 11px; color: #6E6B87; font-weight: 600; }
+      .rp-sev { display: flex; height: 14px; gap: 2px; border-radius: 7px; overflow: hidden; }
+      .rp-sev i { display: block; height: 100%; }
+      .rp-sevlab { display: flex; gap: 12px; font-size: 12px; font-weight: 700; color: #3D3B55; }
+      .rp-top1 { font-size: 13.5px; background: #FFF5F6; border-radius: 14px; padding: 8px 10px; color: #3D3B55; } .rp-top1 b { color: #B23345; }
+      .col[data-pane="home"] .duo-notes:not(.duo-feed) .duo-note:nth-child(n+3) { display: none; }
+      .duo-seeall { align-self: flex-start; border: 0; background: #F1EEFA; color: #5C3FD6; border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+      .col[data-pane="alerts"] .duo-seeall { display: none; }
+      .duo-tabs.six button { font-size: 11px; padding: 9px 1px; }
       /* Grandma: simple and large */
       .col.margaret { font-size: 17px; }
       .col.margaret .m-card { gap: 14px; padding: 16px; }
@@ -336,7 +360,7 @@
     // ---- tabs in each phone, built from the page's own sections ----
     const PANES = {
       margaret: [['home', 'Home'], ['ask', 'Pip'], ['privacy', 'Privacy']],
-      carer: [['home', 'Home'], ['physical', 'Physical'], ['mental', 'Mental'], ['financial', 'Financial'], ['band', 'Device']],
+      carer: [['home', 'Home'], ['alerts', 'Alerts'], ['physical', 'Physical'], ['mental', 'Mental'], ['financial', 'Financial'], ['band', 'Device']],
     };
     function paneOf(el, side) {
       const has = (q) => el.matches(q) || !!el.querySelector(q);
@@ -348,10 +372,11 @@
         return 'home';
       }
       if (el.classList.contains('cg-head')) return 'all';
-      if (el.classList.contains('duo-report')) return 'home';
+      if (el.classList.contains('duo-report')) return 'band';            // the daily report lives under Device
       if (el.classList.contains('duo-locked')) return el.dataset.cat;
       if (el.classList.contains('duo-feed')) return el.dataset.cat;
-      if (el.classList.contains('duo-notes')) return 'home';
+      if (el.classList.contains('duo-notes')) return 'ha';               // notifications: last 2 on Home, all under Alerts
+      if (has('#cgAlerts')) return 'alerts';
       if (el.classList.contains('top') || has('#demo')) return 'band';
       if (el.classList.contains('scores')) return 'pm';           // physical and mental charts: each tab shows its own
       if (has('.live-tx, .digest, #insights')) return 'mental';
@@ -402,13 +427,13 @@
             rp.querySelector('.rp-btn').onclick = () => makeReport(d);
             const head = box.querySelector(':scope > .cg-head'); if (head) head.after(rp); else box.prepend(rp);
           }
-          { const head = box.querySelector(':scope > .cg-head'), rp = box.querySelector(':scope > .duo-report');      // report first on Home
-            if (head && rp && head.nextElementSibling !== rp) head.after(rp); }
+          { const rp = box.querySelector(':scope > .duo-report');      // report sits below the device controls
+            if (rp && box.lastElementChild !== rp) box.append(rp); }
           if (!box.querySelector(':scope > .duo-notes:not(.duo-feed)')) {
             const nb = d.createElement('div'); nb.className = 'block duo-notes';
-            nb.innerHTML = '<div class="h">Notifications <span class="muted">· from Grandma’s band</span></div><ol></ol><p class="none">Nothing yet. When something happens to Grandma, it lands here.</p>';
+            nb.innerHTML = '<div class="h">Notifications <span class="muted">· from Grandma’s band</span></div><ol></ol><p class="none">Nothing yet. When something happens to Grandma, it lands here.</p><button type="button" class="duo-seeall" hidden>See all notifications</button>';
+            nb.querySelector('.duo-seeall').onclick = () => setPane(d, 'carer', 'alerts');
             const head = box.querySelector(':scope > .cg-head'); if (head) head.after(nb); else box.prepend(nb);
-            const rp2 = box.querySelector(':scope > .duo-report'); if (head && rp2) head.after(rp2);
           }
         }
         const parts = [...(box ? box.children : []), ...[...col.children].filter((c) => c.classList.contains('top'))].filter((c) => !c.classList.contains('duo-sheet') && !c.classList.contains('duo-sos'));
@@ -416,7 +441,7 @@
         if (!col.dataset.pane) col.dataset.pane = PANES[side][0][0];
         let bar = col.querySelector(':scope > .duo-tabs');
         if (!bar) {
-          bar = d.createElement('nav'); bar.className = 'duo-tabs' + (PANES[side].length > 4 ? ' five' : ''); bar.setAttribute('role', 'tablist');
+          bar = d.createElement('nav'); bar.className = 'duo-tabs' + (PANES[side].length > 5 ? ' six' : PANES[side].length > 4 ? ' five' : ''); bar.setAttribute('role', 'tablist');
           for (const [id, label] of PANES[side]) {
             const b = d.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.pane = id; b.textContent = label;
             if (id === 'home') b.append(d.createElement('i'));
@@ -572,57 +597,95 @@
           private_areas: Object.keys(privacy).filter((k) => !privacy[k]) };
         r = await (await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ facts }) })).json();
       } catch (_) { r = null; }
-      wait.remove(); reportBusy = false; btn.textContent = 'Update report'; btn.disabled = false;
+      wait.remove(); reportBusy = false; btn.textContent = 'Update'; btn.disabled = false;
       const el = (tag, cls, text) => { const n = d.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
       const when = el('small', '', new Date().toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + evs.length + ' events');
       top.querySelector('b').textContent = 'Today’s report'; if (!top.querySelector('small')) top.querySelector('b').after(when);
       rp.append(el('p', 'rp-head', (r && r.headline) || `Grandma had ${evs.length} things worth knowing about today.`));
-      // tiles: today vs a usual day
-      const tiles = el('div', 'rp-tiles');
-      for (const cat of ['physical', 'mental', 'financial']) {
-        const t = el('div', 'rp-tile'); t.dataset.cat = cat; t.append(el('small', '', CAT_NAME[cat]));
-        if (privacy[cat] === false) { t.classList.add('private'); t.append(el('b', '', 'Private'), el('span', 'same', 'Grandma’s choice')); tiles.append(t); continue; }
-        const n = evs.filter((e) => e.cat === cat).length, u = USUAL[cat];
-        const cls = n > u ? 'up' : n < u ? 'down' : 'same';
-        t.append(el('b', '', String(n)), el('span', cls, n > u ? `↑ ${n - u} more than usual` : n < u ? `↓ ${u - n} fewer than usual` : 'About usual'));
-        tiles.append(t);
+      const COL = { physical: '#2E9A63', mental: '#7A5CF0', financial: '#C47A14' };
+      const shared = ['physical', 'mental', 'financial'].filter((c) => privacy[c] !== false);
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const sv = (tag, attrs, parent) => { const n = d.createElementNS(svgNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.append(n); return n; };
+      const card = (title, note) => { const c = el('div', 'rp-card'); const h = el('h5', '', title); if (note) h.append(el('small', '', note)); c.append(h); rp.append(c); return c; };
+      // 1. today vs a usual day (bars; the dark tick is a usual day)
+      const c1 = card('Today vs a usual day', 'tick = usual');
+      const counts = Object.fromEntries(shared.map((cat) => [cat, evs.filter((e) => e.cat === cat).length]));
+      const max = Math.max(4, ...Object.values(counts), ...shared.map((c) => USUAL[c]));
+      for (const cat of shared) {
+        const n = counts[cat], u = USUAL[cat];
+        const row = el('div', 'rp-bar'); row.title = `${CAT_NAME[cat]}: ${n} today, ${u} on a usual day`;
+        const tr = el('div', 'rp-track'); const bi = el('i'); bi.style.width = (100 * n / max) + '%'; bi.style.background = COL[cat]; const tick = el('u'); tick.style.left = `calc(${100 * u / max}% - 1px)`; tr.append(bi, tick);
+        row.append(el('span', 'lab', CAT_NAME[cat]), tr, el('span', 'val', n > u ? `${n} · ↑${n - u}` : n < u ? `${n} · ↓${u - n}` : `${n} · usual`));
+        c1.append(row);
       }
-      rp.append(tiles);
-      // trend: the health scores already on my phone
-      const tr = el('div', 'rp-trend');
+      if (shared.length < 3) c1.append(el('p', 'fine', 'Some areas are private (Grandma’s choice).'));
+      // 2. her day: each event a dot on the clock; bigger ring = urgent
+      const c2 = card('Her day', 'bigger dot = urgent');
+      const W = 320, H = 58, x0 = 8, x1 = W - 8, mins = (t) => { const m = /(\d+):(\d+)\s*(am|pm)/i.exec(t || ''); if (!m) return null; let h = +m[1] % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + +m[2]; };
+      const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, class: 'rp-svg', role: 'img', 'aria-label': 'Events through the day' }, c2);
+      sv('line', { x1: x0, x2: x1, y1: 30, y2: 30, stroke: '#DCD5EE', 'stroke-width': 2, 'stroke-linecap': 'round' }, svg);
+      for (const [h, lab] of [[0, '12a'], [6, '6a'], [12, '12p'], [18, '6p'], [24, '12a']]) { const x = x0 + (x1 - x0) * h / 24; sv('line', { x1: x, x2: x, y1: 26, y2: 34, stroke: '#CFC8E4', 'stroke-width': 1 }, svg); const tx = sv('text', { x, y: 52, 'text-anchor': 'middle' }, svg); tx.textContent = lab; }
+      const placed = [];
+      for (const e of evs) {
+        const m = mins(e.time); if (m == null) continue;
+        let x = x0 + (x1 - x0) * m / 1440, y = 30; while (placed.some((p) => Math.abs(p[0] - x) < 9 && p[1] === y)) y -= 11; placed.push([x, y]);
+        const urgent = e.level === 'urgent';
+        const dot = sv('circle', { cx: x, cy: y, r: urgent ? 6.5 : 4.5, fill: COL[e.cat] || '#8E8AA6', stroke: '#fff', 'stroke-width': 2 }, svg);
+        const t = sv('title', {}, dot); t.textContent = `${e.time} · ${e.alert || e.event}`;
+      }
+      const lg = el('div', 'rp-legend'); for (const cat of shared) { const sp = el('span'); const i = el('i'); i.style.background = COL[cat]; sp.append(i, CAT_NAME[cat]); lg.append(sp); } c2.append(lg);
+      // 3. health score trend (the week's scores already on my phone)
+      const sparks = [];
       for (const sc of d.querySelectorAll('.col.carer .score')) {
         const kind = sc.dataset.kind; if (privacy[kind] === false) continue;
-        const num = (sc.querySelector('.score-num') || {}).firstChild; const trend = (sc.querySelector('.score-trend') || {}).textContent || '';
-        tr.append(el('div', '', `${kind === 'mental' ? 'Mental' : 'Physical'} health ${num ? num.textContent.trim() : ''}/100 · ${trend.trim()}`));
+        const vals = [...sc.querySelectorAll('table tr')].slice(1).map((r) => parseFloat(r.cells[1] && r.cells[1].textContent)).filter((v) => !isNaN(v)).reverse();
+        if (vals.length >= 2) sparks.push([kind, vals, ((sc.querySelector('.score-trend') || {}).textContent || '').trim()]);
       }
-      if (tr.children.length) rp.append(tr);
-      const sec = (title, items, cls, open) => {
-        const dd = el('details', 'rp-sec' + (cls ? ' ' + cls : '')); if (open) dd.open = true;
-        dd.append(el('summary', '', title)); const ul = el('ul'); for (const it of items) ul.append(el('li', '', it)); dd.append(ul); return dd;
-      };
+      if (sparks.length) {
+        const c3 = card('Health score this week'); const g = el('div', 'rp-spark');
+        for (const [kind, vals, trend] of sparks) {
+          const box2 = el('div'); const today = vals[vals.length - 1];
+          const head = el('div'); head.append(el('b', '', String(today)), el('small', '', `${kind === 'mental' ? 'Mental' : 'Physical'} · ${trend.replace(/the week’s average/, 'week avg')}`));
+          const w = 140, h = 40, lo = Math.min(...vals) - 2, hi = Math.max(...vals) + 2;
+          const s2 = sv('svg', { viewBox: `0 0 ${w} ${h}`, class: 'rp-svg', role: 'img', 'aria-label': `${kind} score, last ${vals.length} days` });
+          const pts = vals.map((v, i) => [4 + (w - 8) * i / (vals.length - 1), h - 4 - (h - 8) * (v - lo) / (hi - lo || 1)]);
+          sv('polyline', { points: pts.map((p) => p.join(',')).join(' '), fill: 'none', stroke: COL[kind === 'mental' ? 'mental' : 'physical'], 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, s2);
+          const last = pts[pts.length - 1]; const lc = sv('circle', { cx: last[0], cy: last[1], r: 4, fill: COL[kind === 'mental' ? 'mental' : 'physical'], stroke: '#fff', 'stroke-width': 2 }, s2); sv('title', {}, lc).textContent = `Today ${today}`;
+          box2.append(head, s2); g.append(box2);
+        }
+        c3.append(g);
+      }
+      // 4. how serious (status colours, always with words)
+      const lv = { urgent: evs.filter((e) => e.level === 'urgent').length, warn: evs.filter((e) => e.level === 'warn').length, info: evs.filter((e) => e.level !== 'urgent' && e.level !== 'warn').length };
+      const c4 = card('How serious'); const sev = el('div', 'rp-sev');
+      for (const [k, colr] of [['urgent', '#C2283B'], ['warn', '#B8700F'], ['info', '#A7A2BF']]) if (lv[k]) { const i = el('i'); i.style.flex = String(lv[k]); i.style.background = colr; i.title = `${lv[k]} ${k === 'warn' ? 'to check' : k}`; sev.append(i); }
+      const sl = el('div', 'rp-sevlab'); sl.append(el('span', '', `${lv.urgent} urgent`), el('span', '', `${lv.warn} to check`), el('span', '', `${lv.info} for info`));
+      c4.append(sev, sl);
       const concerns = (r && r.concerns || []).filter((x) => !/^none/i.test(x));
-      if (concerns.length) rp.append(sec('Needs your attention', concerns, 'warn', true));
-      for (const cat of ['physical', 'mental', 'financial']) {
-        if (privacy[cat] === false) continue;
-        const items = (r && r[cat]) || evs.filter((e) => e.cat === cat).map((e) => `${e.time} ${e.alert || e.event}`);
-        if (items.length && !(items.length === 1 && /nothing notable/i.test(items[0]))) rp.append(sec('What happened · ' + CAT_NAME[cat], items));
-      }
-      const steps = (r && r.next_steps) || [];
+      if (concerns.length) { const t1 = el('div', 'rp-top1'); t1.append(el('b', '', 'Most important: '), document.createTextNode(concerns[0])); c4.append(t1); }
+      // 5. what to do (3 short steps)
+      const steps = ((r && r.next_steps) || []).slice(0, 3);
       if (steps.length) {
-        const dd = el('details', 'rp-sec'); dd.open = true; dd.append(el('summary', '', 'How you can help'));
-        const ul = el('ul', 'rp-steps'); for (const st of steps) { const li = el('li'); const lb = el('label'); const cb = el('input'); cb.type = 'checkbox'; lb.append(cb, el('span', '', st)); li.append(lb); ul.append(li); }
-        dd.append(ul); rp.append(dd);
+        const c5 = card('Do next'); const ul = el('ul', 'rp-steps'); ul.style.margin = '0';
+        for (const st of steps) { const li = el('li'); const lb = el('label'); const cb = el('input'); cb.type = 'checkbox'; lb.append(cb, el('span', '', st)); li.append(lb); ul.append(li); }
+        c5.append(ul);
       }
+      // the full words, folded away
+      const more = el('details', 'rp-sec'); more.append(el('summary', '', 'Read the full report'));
+      const ulm = el('ul');
+      for (const cat of shared) for (const it of ((r && r[cat]) || [])) if (!/nothing notable/i.test(it)) ulm.append(el('li', '', `${CAT_NAME[cat]}: ${it}`));
+      for (const c of concerns.slice(1)) ulm.append(el('li', '', 'Also: ' + c));
+      more.append(ulm);
       if (r && r.for_doctor) {
-        const dd = el('details', 'rp-sec'); dd.append(el('summary', '', 'Note for Dr. Patel'));
-        dd.append(el('p', 'rp-doc', r.for_doctor));
-        const cp = el('button', 'rp-btn ghost', 'Copy note'); cp.type = 'button';
+        more.append(el('p', 'rp-doc', 'For Dr. Patel: ' + r.for_doctor));
+        const cp = el('button', 'rp-btn ghost', 'Copy note for Dr. Patel'); cp.type = 'button';
         cp.onclick = () => { try { navigator.clipboard.writeText(r.for_doctor).then(() => { cp.textContent = 'Copied'; }); } catch (_) { /* */ } };
-        dd.append(cp); rp.append(dd);
+        more.append(cp);
       }
+      rp.append(more);
       rp.append(el('p', 'fine', (r && r.source === 'openai' ? 'Written by AI from today’s events. ' : 'Made from today’s events. ') + '“Usual” is from sample history. Signals, not diagnoses.'));
       if (auto) notify(d, { cat: 'mental', level: 'info', title: 'Grandma’s daily report is ready', body: (r && r.headline) || '', t: nowStr() });
-      setPane(d, 'carer', 'home'); const col = d.querySelector('.col.carer'); if (col) col.scrollTop = 0;
+      setPane(d, 'carer', 'band'); const col = d.querySelector('.col.carer'); if (col) col.scrollTop = rp.offsetTop - 30;
     }
     // when the simulator finishes a whole day, make the report by itself; a new Play starts a new day
     function watchSimDay() {
@@ -661,6 +724,7 @@
       ol.prepend(li);
       while (ol.children.length > 30) ol.lastChild.remove();
       if (feed) { const fn = feed.querySelector('.none'); if (fn) fn.remove(); feed.querySelector('ol').prepend(li.cloneNode(true)); }
+      const seeAll = box.querySelector('.duo-seeall'); if (seeAll) { seeAll.hidden = ol.children.length <= 2; seeAll.textContent = `See all ${ol.children.length} notifications`; }
       setPane(d, 'carer', 'home');
       if (n.level === 'urgent' || n.level === 'warn') {          // a push-style banner at the top of my phone
         const col = d.querySelector('.col.carer'); const old = col.querySelector(':scope > .duo-toast'); if (old) old.remove();
