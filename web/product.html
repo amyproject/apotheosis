@@ -90,6 +90,12 @@
   .flowp .lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
   @media (max-width: 1360px) { main { grid-template-columns: 392px 392px; } .panel.sim { grid-column: 1 / -1; grid-row: 1; } .panel.portals { grid-column: 1 / -1; grid-row: 2; } .flowp { grid-column: 1 / -1; grid-row: 3; } }
   @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  /* section titles: bigger and warmer */
+  .panel h2, .duo-heads h2 { gap: 10px; font: 600 23px/1.15 Fraunces, Georgia, serif; letter-spacing: -.01em; text-transform: none; color: var(--ink); min-height: 40px; }
+  .panel h2 span, .duo-heads h2 span { width: 34px; height: 34px; border-radius: 12px; background: var(--terra); color: #fff; font: 800 17px/1 Figtree, system-ui, sans-serif; box-shadow: 0 6px 14px -6px rgba(176,83,47,.6); flex: none; }
+  .panel h2 b, .duo-heads h2 b { font-weight: 600; white-space: nowrap; }
+  .panel h2 small, .duo-heads h2 small { font: 700 11px/1 Figtree, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--terra-d); background: #F8E3D8; border-radius: 999px; padding: 5px 9px; }
+  .panel h2 a, .duo-heads h2 a { font: 700 12.5px Figtree, system-ui, sans-serif; }
   :focus-visible { outline: 3px solid var(--terra); outline-offset: 2px; }
 </style>
 </head>
@@ -105,8 +111,8 @@
 <main>
   <section class="panel portals" id="portals" aria-label="Grandma and me: portals from band39-live">
     <div class="duo-heads">
-      <h2 id="h-me"><span>2</span>Me<a href="live/index.html" target="_blank" rel="noopener">Open</a></h2>
-      <h2 id="h-grandma"><span>3</span>Grandma</h2>
+      <h2 id="h-me"><span>2</span><b>Stay in the loop</b><small>Me</small><a href="live/index.html" target="_blank" rel="noopener">Open</a></h2>
+      <h2 id="h-grandma"><span>3</span><b>Safe at home</b><small>Grandma</small></h2>
     </div>
     <div class="duo-fit"><div class="duo">
       <iframe id="liveFrame" title="Grandma's screen and my app (band39-live care app, one page)" src="live/index.html" loading="eager"></iframe>
@@ -114,7 +120,7 @@
     </div></div>
   </section>
   <section class="panel sim on" id="sim" aria-labelledby="h-sim">
-    <h2 id="h-sim"><span>1</span>Simulator<a href="/" target="_blank" rel="noopener">Open</a></h2>
+    <h2 id="h-sim"><span>1</span><b>Live Grandma’s day</b><small>Simulator</small><a href="/" target="_blank" rel="noopener">Open</a></h2>
     <div class="screen"><iframe title="Simulator: a day in 30 seconds" data-src="#/" loading="eager"></iframe></div>
   </section>
   <section class="flowp" id="flowp" aria-live="polite" aria-label="What happens, step by step">
