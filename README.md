@@ -1,4 +1,4 @@
-# Band 39 care: Margaret's screen + Lisa's app
+# Apotheosis: Margaret's screen + Lisa's app
 
 Live from the Vexo Open band **Vexo-HACK-39** (`BAND = 39` in `web/js/app.js`).
 

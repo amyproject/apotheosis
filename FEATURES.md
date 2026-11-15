@@ -1,6 +1,6 @@
-# Band 39 Care: features by health area
+# Apotheosis: features by health area
 
-Margaret (78) wears Vexo band 39. Pip is her voice companion. Her daughter Lisa follows along in the caregiver portal.
+Margaret (78) wears the Apotheosis device (a Vexo band). Pip is her voice companion. Her daughter Lisa follows along in the caregiver portal.
 Every feature below falls under **mental**, **physical** or **financial** health. The last section covers the shared platform.
 
 Sensor key: **Motion** = band accelerometer + gyro at 50 Hz (`web/js/motion-lab.js`) · **Voice** = always-on mic → Deepgram → OpenAI

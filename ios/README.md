@@ -1,6 +1,6 @@
-# Band 39 Care for iPhone
+# Apotheosis for iPhone (Band39Care project)
 
-The Band 39 care web app (`../web`) as an iPhone app. A native tab bar switches between three roles:
+The Apotheosis web app (`../web`) as an iPhone app. A native tab bar switches between three roles:
 
 | Tab | What it shows | Calls |
 |---|---|---|

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Band 39 · Margaret, Lisa and a day in 30 seconds</title>
+<title>Apotheosis · Margaret, Lisa and a day in 30 seconds</title>
 <link rel="stylesheet" href="fonts/fonts.css" />
 <script src="js/icons.js"></script>
 <style>
@@ -94,7 +94,7 @@
 </head>
 <body>
 <header>
-  <h1>Band 39</h1>
+  <h1>Apotheosis</h1>
   <p>The simulator, then my app and Grandma’s screen from band39-live.</p>
   <div class="tabs" role="tablist" aria-label="Screens">
     
@@ -277,7 +277,7 @@
 
     // ---- in my phone the person is Grandma (on screen only; band39-live's text stays as written in its files) ----
     const RENAME = /\bMOM\b|\bMom\b|\bBAND\b|\bBand\b|\bband\b/;
-    const toGrandma = (t) => t.replace(/\bMOM\b/g, 'GRANDMA').replace(/\bMom\b/g, 'Grandma').replace(/\bBAND\b/g, 'DEVICE').replace(/\bBand\b/g, 'Device').replace(/\bband\b/g, 'device');
+    const toGrandma = (t) => t.replace(/\bBAND 39\b/g, 'APOTHEOSIS').replace(/\b[Bb]and 39\b/g, 'Apotheosis').replace(/\bMOM\b/g, 'GRANDMA').replace(/\bMom\b/g, 'Grandma').replace(/\bBAND\b/g, 'DEVICE').replace(/\bBand\b/g, 'Device').replace(/\bband\b/g, 'device');
     function renameIn(node) {
       if (!node) return;
       if (node.nodeType === 3) { if (RENAME.test(node.nodeValue)) node.nodeValue = toGrandma(node.nodeValue); return; }
