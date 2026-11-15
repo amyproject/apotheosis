@@ -524,9 +524,11 @@ textarea { border-radius: 20px; width: 100%; resize: vertical; line-height: 1.5;
 .q-main > .q-stage-wrap { grid-column: 1; grid-row: 1; } .q-main > .q-report { grid-column: 1; grid-row: 2; margin-top: 0; } .q-main > .q-side { grid-column: 2; grid-row: 1 / span 2; }
 @media (max-width: 900px) { .q-main > .q-stage-wrap, .q-main > .q-report, .q-main > .q-side { grid-column: 1; grid-row: auto; } }
 /* inside product.html: stage on the left, the actions to pick on the right, at any frame width */
-.app.in-product .q-main { grid-template-columns: minmax(0, 1.75fr) minmax(210px, 1fr) !important; gap: 12px; }
+.app.in-product .q-main { grid-template-columns: minmax(0, 2.6fr) minmax(176px, 1fr) !important; gap: 10px; }
 .app.in-product .q-how { display: none !important; }
 .app.in-product .q-main > .q-stage-wrap { grid-column: 1 !important; grid-row: 1 !important; }
 .app.in-product .q-main > .q-report { grid-column: 1 !important; grid-row: 2 !important; }
 .app.in-product .q-main > .q-side { grid-column: 2 !important; grid-row: 1 / span 2 !important; max-height: calc(100vh - 24px); overflow-y: auto; position: sticky; top: 12px; }
-.app.in-product .q-stage { height: clamp(460px, 74vh, 780px); }
+.app.in-product .q-stage { height: clamp(420px, 64vh, 700px); }
+.app.in-product .qe button { font-size: 13px; padding: 6px 10px; }
+.app.in-product .q-cta { gap: 6px; } .app.in-product .q-play, .app.in-product .q-rep { white-space: nowrap; font-size: 15px; padding-left: 12px; padding-right: 12px; }

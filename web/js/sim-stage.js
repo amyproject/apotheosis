@@ -726,7 +726,8 @@ export function createStage(container, opts = {}) {
     cam.updateMatrixWorld();
     let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
     for (const p of FIT) { fitV.copy(p).applyMatrix4(cam.matrixWorldInverse); x0 = Math.min(x0, fitV.x); x1 = Math.max(x1, fitV.x); y0 = Math.min(y0, fitV.y); y1 = Math.max(y1, fitV.y); }
-    let fw = (x1 - x0) * 1.03, fh = (y1 - y0) * 1.05; const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const zoom = container.closest('.in-product') ? 1.35 : 1;      // product.html: closer on Margaret's room
+    let fw = (x1 - x0) * 1.03 / zoom, fh = (y1 - y0) * 1.05 / zoom; const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
     if (fw / fh < a) fw = fh * a; else fh = fw / a;
     Object.assign(cam, { left: cx - fw / 2, right: cx + fw / 2, top: cy + fh / 2, bottom: cy - fh / 2 }); cam.updateProjectionMatrix();
     renderer.setSize(w, h, false); renderer.domElement.style.width = '100%'; renderer.domElement.style.height = '100%';
